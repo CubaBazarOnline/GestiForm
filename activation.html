@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activación de GestiForm</title>
+    <style>
+        :root {
+            --primary: #00a884;
+            --primary-dark: #008069;
+            --error: #f44336;
+            --success: #4CAF50;
+            --text: #333;
+            --light-bg: #f5f7fa;
+            --card-bg: #fff;
+        }
+        
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--light-bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .activation-card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            padding: 30px;
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+            border-top: 4px solid var(--primary);
+        }
+        
+        h1 {
+            color: var(--primary-dark);
+            margin-bottom: 15px;
+            font-size: 1.8rem;
+        }
+        
+        p {
+            color: #555;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        #activationCode {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            text-align: center;
+            letter-spacing: 2px;
+            font-weight: bold;
+        }
+        
+        #activateBtn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 15px;
+            width: 100%;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-top: 10px;
+        }
+        
+        #activateBtn:hover {
+            background: var(--primary-dark);
+        }
+        
+        .message {
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 6px;
+            display: none;
+            font-size: 0.9rem;
+        }
+        
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid var(--success);
+        }
+        
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid var(--error);
+        }
+        
+        .info {
+            margin-top: 25px;
+            font-size: 0.85rem;
+            color: #666;
+        }
+        
+        @media (max-width: 480px) {
+            .activation-card {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="activation-card">
+        <h1>Activación de GestiForm</h1>
+        <p>Ingrese el código de activación proporcionado para desbloquear todas las funcionalidades de la plataforma.</p>
+        
+        <div class="input-group">
+            <input type="text" id="activationCode" maxlength="9" placeholder="XXXX-XXXX" autocomplete="off">
+        </div>
+        
+        <button id="activateBtn">Activar Plataforma</button>
+        
+        <div id="message" class="message"></div>
+        
+        <div class="info">
+            <p>Si no tienes un código de activación, contacta al administrador del sistema.</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const activationCode = document.getElementById('activationCode');
+            const activateBtn = document.getElementById('activateBtn');
+            const message = document.getElementById('message');
+            
+            // Verificar si ya está activado
+            checkActivationStatus();
+            
+            // Códigos de activación válidos (en producción, esto debería venir de un backend)
+            const VALID_CODES = ['GESTI-24', 'FORM-567', 'ACTIV-2024', 'FULL-ACCESS'];
+            
+            // Formatear el código mientras se escribe (XXXX-XXXX)
+            activationCode.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/-/g, '').toUpperCase();
+                if (value.length > 4) {
+                    value = value.substring(0, 4) + '-' + value.substring(4, 8);
+                }
+                e.target.value = value;
+                
+                // Validación básica del formato
+                if (/^[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(value) || value.length === 0) {
+                    activationCode.style.borderColor = '#ddd';
+                } else {
+                    activationCode.style.borderColor = 'var(--error)';
+                }
+            });
+            
+            // Manejar el evento de activación
+            activateBtn.addEventListener('click', function() {
+                const code = activationCode.value.trim();
+                
+                // Validaciones
+                if (code.length !== 9) {
+                    showMessage('El código debe tener 8 caracteres en formato XXXX-XXXX', 'error');
+                    return;
+                }
+                
+                if (!VALID_CODES.includes(code)) {
+                    showMessage('Código de activación incorrecto', 'error');
+                    return;
+                }
+                
+                // Guardar activación en localStorage con fecha de expiración (30 días)
+                const activationData = {
+                    code: code,
+                    activated: true,
+                    expiry: new Date().getTime() + (30 * 24 * 60 * 60 * 1000), // 30 días
+                    fullAccess: code === 'FULL-ACCESS' // Código especial para acceso ilimitado
+                };
+                
+                localStorage.setItem('gestiform_activation', JSON.stringify(activationData));
+                showMessage('¡Activación exitosa! Redirigiendo...', 'success');
+                
+                // Redirigir al formulario principal después de 2 segundos
+                setTimeout(function() {
+                    window.location.href = 'index.html';
+                }, 2000);
+            });
+            
+            // Función para mostrar mensajes
+            function showMessage(text, type) {
+                message.textContent = text;
+                message.className = 'message ' + type;
+                message.style.display = 'block';
+                
+                // Ocultar mensaje después de 5 segundos
+                setTimeout(function() {
+                    message.style.display = 'none';
+                }, 5000);
+            }
+            
+            // Verificar estado de activación
+            function checkActivationStatus() {
+                const activationData = JSON.parse(localStorage.getItem('gestiform_activation'));
+                
+                if (activationData && activationData.activated) {
+                    // Verificar si la activación ha expirado
+                    if (new Date().getTime() > activationData.expiry) {
+                        localStorage.removeItem('gestiform_activation');
+                        showMessage('Tu licencia ha expirado. Por favor reactiva el servicio.', 'error');
+                    } else {
+                        // Redirigir si ya está activado
+                        window.location.href = 'index.html';
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

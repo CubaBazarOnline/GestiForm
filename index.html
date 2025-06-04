@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GestiForm</title>
+    <style>
+        :root {
+            --primary: #00a884;
+            --primary-dark: #008069;
+            --error: #f44336;
+            --warning: #ff9800;
+            --success: #4CAF50;
+            --text: #333;
+            --light-bg: #f5f7fa;
+            --card-bg: #fff;
+            --border: #ddd;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            line-height: 1.5;
+            background: var(--light-bg);
+            color: var(--text);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            border-left: 4px solid var(--primary);
+        }
+        
+        h1 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary-dark);
+            text-align: center;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #555;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        
+        .required:after {
+            content: " *";
+            color: var(--error);
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0, 168, 132, 0.2);
+        }
+        
+        .error {
+            border-color: var(--error) !important;
+        }
+        
+        .error-message {
+            color: var(--error);
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+            display: none;
+        }
+        
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.85rem;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.2s;
+            margin-top: 10px;
+        }
+        
+        .btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+        
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .notification {
+            padding: 0.75rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            display: none;
+            font-size: 0.85rem;
+        }
+        
+        .offline {
+            background: #fff3cd;
+            color: #856404;
+            border-left: 4px solid var(--warning);
+        }
+        
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid var(--success);
+        }
+        
+        .pending {
+            background: #e2f0fd;
+            color: #0c5460;
+            border-left: 4px solid var(--info);
+        }
+        
+        .compact-row {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .compact-row .form-group {
+            flex: 1;
+        }
+        
+        .radio-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+        
+        .radio-option {
+            flex: 1;
+            position: relative;
+        }
+        
+        .radio-option input {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .radio-option label {
+            display: block;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: normal;
+        }
+        
+        .radio-option input:checked + label {
+            border-color: var(--primary);
+            background: rgba(0, 168, 132, 0.1);
+            font-weight: 500;
+        }
+        
+        .radio-option input:focus + label {
+            box-shadow: 0 0 0 3px rgba(0, 168, 132, 0.2);
+        }
+        
+        .service-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+            display: none;
+            border-left: 3px solid var(--primary);
+        }
+        
+        .service-info h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 1rem;
+            color: var(--primary-dark);
+        }
+        
+        .service-info p {
+            margin-bottom: 0;
+            font-size: 0.85rem;
+            color: #555;
+        }
+        
+        .usage-counter {
+            text-align: center;
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 15px;
+        }
+        
+        @media (max-width: 480px) {
+            .compact-row, .radio-group {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div id="offlineNotification" class="notification offline">
+                ⚠️ Estás trabajando sin conexión. Los datos se guardarán localmente.
+            </div>
+            
+            <div id="pendingNotification" class="notification pending">
+                ⏳ Tienes <span id="pendingCount">0</span> envíos pendientes.
+                <a href="#" id="retryButton" style="color: inherit; text-decoration: underline; margin-left: 5px;">Reintentar ahora</a>
+            </div>
+            
+            <h1>GestiForm</h1>
+            <p class="subtitle">Sistema de gestión de pedidos para WhatsApp, ToDus y SMS</p>
+            
+            <form id="compraForm" novalidate>
+                <div class="compact-row">
+                    <div class="form-group">
+                        <label for="nombre" class="required">Nombre completo</label>
+                        <input type="text" id="nombre" name="nombre" required>
+                        <div id="nombre-error" class="error-message">Por favor ingrese su nombre completo</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="ci" class="required">Carnet de Identidad</label>
+                        <input type="text" id="ci" name="ci" pattern="[0-9]{11}" required>
+                        <div id="ci-error" class="error-message">El CI debe tener 11 dígitos numéricos</div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="movil" class="required">Número de móvil</label>
+                    <input type="tel" id="movil" name="movil" pattern="[0-9]{8}" required>
+                    <div id="movil-error" class="error-message">Ingrese un número de móvil válido (8 dígitos)</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="domicilio" class="required">Domicilio</label>
+                    <textarea id="domicilio" name="domicilio" rows="2" required></textarea>
+                    <div id="domicilio-error" class="error-message">Por favor ingrese su dirección completa</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="producto" class="required">Nombre del producto</label>
+                    <input type="text" id="producto" name="producto" required>
+                    <div id="producto-error" class="error-message">Ingrese el nombre del producto</div>
+                </div>
+                
+                <div class="compact-row">
+                    <div class="form-group">
+                        <label for="precio" class="required">Precio</label>
+                        <input type="number" id="precio" name="precio" min="0" step="0.01" required>
+                        <div id="precio-error" class="error-message">El precio debe ser un valor positivo</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="moneda" class="required">Moneda</label>
+                        <select id="moneda" name="moneda" required>
+                            <option value="">Seleccione...</option>
+                            <option value="CUP">CUP (Peso cubano)</option>
+                            <option value="USD">USD (Dólar americano)</option>
+                            <option value="EUR">EUR (Euro)</option>
+                            <option value="MLC">MLC</option>
+                        </select>
+                        <div id="moneda-error" class="error-message">Seleccione una moneda</div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Enviar información por:</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="sms" name="envio" value="sms" required>
+                            <label for="sms">SMS</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="todus" name="envio" value="todus">
+                            <label for="todus">ToDus</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="whatsapp" name="envio" value="whatsapp">
+                            <label for="whatsapp">WhatsApp</label>
+                        </div>
+                    </div>
+                    <div id="envio-error" class="error-message">Seleccione un método de envío</div>
+                </div>
+                
+                <div id="smsInfo" class="service-info">
+                    <h3>📱 Envío por SMS</h3>
+                    <p>Recibirás un código de confirmación en tu móvil para validar el envío.</p>
+                    <div id="smsConfirmation" style="display: none; margin-top: 10px;">
+                        <input type="checkbox" id="smsConfirmCheckbox">
+                        <label for="smsConfirmCheckbox" style="display: inline; font-weight: normal;">He recibido el código SMS</label>
+                    </div>
+                </div>
+                
+                <div id="todusInfo" class="service-info">
+                    <h3>💬 Envío por ToDus</h3>
+                    <p>Verificaremos automáticamente si tienes la aplicación ToDus instalada.</p>
+                </div>
+                
+                <input type="hidden" id="numeroDestino" name="numeroDestino" value="+5350369270">
+                <input type="hidden" id="timestamp" name="timestamp">
+                
+                <button type="submit" class="btn" id="submitBtn">Enviar Pedido</button>
+                
+                <div id="usageCounter" class="usage-counter"></div>
+            </form>
+            
+            <div id="successMessage" class="notification success" style="display: none;">
+                ✅ ¡Pedido enviado con éxito! Recibirás una confirmación pronto.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Constantes
+        const PENDING_SUBMISSIONS_KEY = 'pendingSubmissions';
+        const USAGE_LIMIT_KEY = 'usageLimit';
+        const ACTIVATION_KEY = 'gestiform_activation';
+        const MAX_RETRY_ATTEMPTS = 3;
+        const RETRY_DELAY = 5000;
+        const SYNC_INTERVAL = 30000;
+        const MAX_USES_PER_DAY = 2;
+        
+        // Elementos del DOM
+        const offlineNotification = document.getElementById('offlineNotification');
+        const pendingNotification = document.getElementById('pendingNotification');
+        const pendingCount = document.getElementById('pendingCount');
+        const retryButton = document.getElementById('retryButton');
+        const successMessage = document.getElementById('successMessage');
+        const submitBtn = document.getElementById('submitBtn');
+        const form = document.getElementById('compraForm');
+        const smsInfo = document.getElementById('smsInfo');
+        const todusInfo = document.getElementById('todusInfo');
+        const smsConfirmation = document.getElementById('smsConfirmation');
+        const smsConfirmCheckbox = document.getElementById('smsConfirmCheckbox');
+        const usageCounter = document.getElementById('usageCounter');
+        
+        // Estado de la aplicación
+        let isSyncing = false;
+        let retryTimeout = null;
+        
+        // 1. Verificar activación al cargar
+        function checkActivation() {
+            const activationData = JSON.parse(localStorage.getItem(ACTIVATION_KEY));
+            
+            if (!activationData || !activationData.activated || new Date().getTime() > activationData.expiry) {
+                localStorage.removeItem(ACTIVATION_KEY);
+                window.location.href = 'activation.html';
+                return false;
+            }
+            
+            return true;
+        }
+        
+        // 2. Sistema de límite de uso
+        function checkUsageLimit() {
+            const activationData = JSON.parse(localStorage.getItem(ACTIVATION_KEY));
+            
+            // Si tiene acceso completo, no hay límite
+            if (activationData && activationData.fullAccess) {
+                updateUsageCounter(true);
+                return true;
+            }
+            
+            const today = new Date().toDateString();
+            const usageData = JSON.parse(localStorage.getItem(USAGE_LIMIT_KEY) || {date: today, count: 0};
+            
+            if (usageData.date !== today) {
+                usageData.date = today;
+                usageData.count = 0;
+                localStorage.setItem(USAGE_LIMIT_KEY, JSON.stringify(usageData));
+            }
+            
+            updateUsageCounter(usageData.count < MAX_USES_PER_DAY, usageData.count);
+            
+            return usageData.count < MAX_USES_PER_DAY;
+        }
+        
+        function updateUsageCounter(withinLimit, count = 0) {
+            const activationData = JSON.parse(localStorage.getItem(ACTIVATION_KEY));
+            
+            if (activationData && activationData.fullAccess) {
+                usageCounter.textContent = "Licencia completa: Sin límites de uso";
+                usageCounter.style.color = "var(--success)";
+                return;
+            }
+            
+            if (withinLimit) {
+                usageCounter.textContent = `Usos hoy: ${count}/${MAX_USES_PER_DAY}`;
+                usageCounter.style.color = count === 0 ? "var(--text)" : count === 1 ? "var(--warning)" : "var(--error)";
+            } else {
+                usageCounter.textContent = `Límite alcanzado: ${MAX_USES_PER_DAY}/${MAX_USES_PER_DAY} usos hoy`;
+                usageCounter.style.color = "var(--error)";
+            }
+        }
+        
+        function incrementUsageCount() {
+            const today = new Date().toDateString();
+            const usageData = JSON.parse(localStorage.getItem(USAGE_LIMIT_KEY) || {date: today, count: 0};
+            
+            if (usageData.date !== today) {
+                usageData.date = today;
+                usageData.count = 0;
+            }
+            
+            usageData.count++;
+            localStorage.setItem(USAGE_LIMIT_KEY, JSON.stringify(usageData));
+            updateUsageCounter(usageData.count < MAX_USES_PER_DAY, usageData.count);
+        }
+        
+        // 3. Manejo de conexión
+        function updateOnlineStatus() {
+            if (navigator.onLine) {
+                offlineNotification.style.display = 'none';
+                
+                if (!isSyncing) {
+                    sendPendingSubmissions();
+                }
+            } else {
+                offlineNotification.style.display = 'block';
+            }
+            
+            updatePendingNotification();
+        }
+        
+        // 4. Manejo de envíos pendientes
+        function getPendingSubmissions() {
+            const submissions = localStorage.getItem(PENDING_SUBMISSIONS_KEY);
+            return submissions ? JSON.parse(submissions) : [];
+        }
+        
+        function saveSubmissionLocally(data) {
+            const pending = getPendingSubmissions();
+            const submission = {
+                data: data,
+                timestamp: new Date().toISOString(),
+                attempts: 0,
+                lastAttempt: null
+            };
+            
+            pending.push(submission);
+            localStorage.setItem(PENDING_SUBMISSIONS_KEY, JSON.stringify(pending));
+            updatePendingNotification();
+        }
+        
+        function updatePendingNotification() {
+            const pending = getPendingSubmissions();
+            
+            if (pending.length > 0) {
+                pendingCount.textContent = pending.length;
+                pendingNotification.style.display = 'block';
+            } else {
+                pendingNotification.style.display = 'none';
+            }
+        }
+        
+        // 5. Envío de datos
+        async function sendFormData(data, isPending = false) {
+            return new Promise(async (resolve, reject) => {
+                try {
+                    if (!isPending) {
+                        if (!checkUsageLimit()) {
+                            alert(`Has alcanzado el límite de ${MAX_USES_PER_DAY} envíos por día.`);
+                            reject(new Error('Límite de uso alcanzado'));
+                            return;
+                        }
+                        
+                        submitBtn.disabled = true;
+                        submitBtn.innerHTML = 'Enviando <span class="loading-spinner"></span>';
+                    }
+                    
+                    // Agregar timestamp
+                    data.timestamp = new Date().toISOString();
+                    
+                    // Formatear mensaje
+                    let mensaje = `Nuevo pedido:\n\n`;
+                    mensaje += `Cliente: ${data.nombre}\n`;
+                    mensaje += `CI: ${data.ci}\n`;
+                    mensaje += `Móvil: ${data.movil}\n`;
+                    mensaje += `Domicilio: ${data.domicilio}\n\n`;
+                    mensaje += `Producto: ${data.producto}\n`;
+                    mensaje += `Precio: ${data.precio} ${data.moneda}\n`;
+                    mensaje += `Enviado por: ${data.envio.toUpperCase()}`;
+                    
+                    // Simular retraso de red en desarrollo
+                    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                    }
+                    
+                    // Envío según método seleccionado
+                    if (navigator.onLine) {
+                        if (data.envio === 'whatsapp') {
+                            window.open(`https://wa.me/${data.numeroDestino}?text=${encodeURIComponent(mensaje)}`, '_blank');
+                        } else if (data.envio === 'sms') {
+                            if (!isPending && !smsConfirmCheckbox.checked) {
+                                const smsCode = Math.floor(1000 + Math.random() * 9000);
+                                alert(`Código de confirmación SMS: ${smsCode}\n(Para demostración, marca la casilla de confirmación)`);
+                                smsConfirmation.style.display = 'block';
+                                reject(new Error('Esperando confirmación SMS'));
+                                return;
+                            }
+                            
+                            if ('sms' in navigator) {
+                                try {
+                                    await navigator.sms.send({
+                                        number: data.numeroDestino,
+                                        body: mensaje
+                                    });
+                                } catch (error) {
+                                    console.error('Error en API SMS:', error);
+                                    throw new Error('Error al enviar SMS: ' + error.message);
+                                }
+                            } else {
+                                window.open(`sms:${data.numeroDestino}?body=${encodeURIComponent(mensaje)}`, '_blank');
+                            }
+                        } else if (data.envio === 'todus') {
+                            if (navigator.userAgent.includes('ToDus') || isToDusInstalled()) {
+                                window.open(`todus://send?number=${data.numeroDestino}&text=${encodeURIComponent(mensaje)}`, '_blank');
+                            } else {
+                                if (confirm('ToDus no está instalado. ¿Desea ir a la tienda para instalarlo?')) {
+                                    window.open('https://todus.cu', '_blank');
+                                }
+                                reject(new Error('ToDus no instalado'));
+                                return;
+                            }
+                        }
+                        
+                        if (!isPending) {
+                            incrementUsageCount();
+                            successMessage.style.display = 'block';
+                            setTimeout(() => {
+                                successMessage.style.display = 'none';
+                            }, 5000);
+                            
+                            form.reset();
+                            smsConfirmation.style.display = 'none';
+                            smsConfirmCheckbox.checked = false;
+                        }
+                        
+                        resolve();
+                    } else {
+                        if (!isPending) {
+                            saveSubmissionLocally(data);
+                            alert('Los datos se guardaron localmente y se enviarán cuando recuperes la conexión.');
+                        }
+                        reject(new Error('Sin conexión'));
+                    }
+                } catch (error) {
+                    console.error('Error al enviar:', error);
+                    
+                    if (!isPending) {
+                        if (error.message.includes('SMS') || error.message.includes('ToDus')) {
+                            alert(error.message);
+                        } else if (!error.message.includes('Límite')) {
+                            alert('Error al enviar. Por favor intente nuevamente.');
+                        }
+                    }
+                    
+                    reject(error);
+                } finally {
+                    if (!isPending) {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Enviar Pedido';
+                    }
+                }
+            });
+        }
+        
+        // 6. Envío de pendientes
+        async function sendPendingSubmissions() {
+            if (isSyncing) return;
+            
+            const pending = getPendingSubmissions();
+            if (pending.length === 0 || !navigator.onLine) return;
+            
+            isSyncing = true;
+            
+            for (let i = pending.length - 1; i >= 0; i--) {
+                const submission = pending[i];
+                
+                try {
+                    await sendFormData(submission.data, true);
+                    removeSubmission(i);
+                } catch (error) {
+                    console.error('Error enviando pendiente:', error);
+                    submission.attempts++;
+                    submission.lastAttempt = new Date().toISOString();
+                    
+                    if (submission.attempts >= MAX_RETRY_ATTEMPTS) {
+                        removeSubmission(i);
+                    } else {
+                        updateSubmission(i, submission);
+                    }
+                }
+            }
+            
+            isSyncing = false;
+        }
+        
+        function removeSubmission(index) {
+            const pending = getPendingSubmissions();
+            pending.splice(index, 1);
+            localStorage.setItem(PENDING_SUBMISSIONS_KEY, JSON.stringify(pending));
+            updatePendingNotification();
+        }
+        
+        function updateSubmission(index, submission) {
+            const pending = getPendingSubmissions();
+            pending[index] = submission;
+            localStorage.setItem(PENDING_SUBMISSIONS_KEY, JSON.stringify(pending));
+        }
+        
+        // 7. Simular ToDus instalado
+        function isToDusInstalled() {
+            return Math.random() > 0.3;
+        }
+        
+        // 8. Validación del formulario
+        function setupValidation() {
+            const fields = form.querySelectorAll('[required], [pattern]');
+            
+            fields.forEach(field => {
+                field.addEventListener('input', () => validateField(field));
+                field.addEventListener('blur', () => validateField(field));
+            });
+            
+            // Mostrar info según método de envío
+            document.querySelectorAll('input[name="envio"]').forEach(radio => {
+                radio.addEventListener('change', () => {
+                    smsInfo.style.display = radio.value === 'sms' ? 'block' : 'none';
+                    todusInfo.style.display = radio.value === 'todus' ? 'block' : 'none';
+                    
+                    if (radio.value !== 'sms') {
+                        smsConfirmation.style.display = 'none';
+                        smsConfirmCheckbox.checked = false;
+                    }
+                });
+            });
+        }
+        
+        function validateField(field) {
+            const errorElement = document.getElementById(`${field.id}-error`);
+            
+            if (field.required && !field.value.trim()) {
+                showError(field, errorElement.textContent);
+                return false;
+            }
+            
+            if (field.pattern && !new RegExp(field.pattern).test(field.value)) {
+                showError(field, errorElement.textContent);
+                return false;
+            }
+            
+            if (field.type === 'number' && field.min && parseFloat(field.value) < parseFloat(field.min)) {
+                showError(field, errorElement.textContent);
+                return false;
+            }
+            
+            clearError(field);
+            return true;
+        }
+        
+        function showError(field, message) {
+            const errorElement = document.getElementById(`${field.id}-error`);
+            field.classList.add('error');
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+        }
+        
+        function clearError(field) {
+            const errorElement = document.getElementById(`${field.id}-error`);
+            field.classList.remove('error');
+            errorElement.style.display = 'none';
+        }
+        
+        function validateForm() {
+            let isValid = true;
+            const requiredFields = form.querySelectorAll('[required]');
+            
+            requiredFields.forEach(field => {
+                if (!validateField(field)) {
+                    isValid = false;
+                }
+            });
+            
+            const radioSelected = form.querySelector('input[name="envio"]:checked');
+            if (!radioSelected) {
+                document.getElementById('envio-error').style.display = 'block';
+                isValid = false;
+            } else {
+                document.getElementById('envio-error').style.display = 'none';
+            }
+            
+            return isValid;
+        }
+        
+        // 9. Inicialización
+        document.addEventListener('DOMContentLoaded', () => {
+            // Verificar activación
+            if (!checkActivation()) return;
+            
+            // Configurar eventos de conexión
+            window.addEventListener('online', updateOnlineStatus);
+            window.addEventListener('offline', updateOnlineStatus);
+            updateOnlineStatus();
+            
+            // Configurar validación
+            setupValidation();
+            
+            // Configurar reintento manual
+            retryButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                sendPendingSubmissions();
+            });
+            
+            // Configurar envío periódico
+            setInterval(() => {
+                if (navigator.onLine && getPendingSubmissions().length > 0) {
+                    sendPendingSubmissions();
+                }
+            }, SYNC_INTERVAL);
+            
+            // Configurar contador de uso
+            checkUsageLimit();
+            
+            // Configurar envío del formulario
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                if (validateForm() && checkUsageLimit()) {
+                    const formData = new FormData(this);
+                    const data = Object.fromEntries(formData.entries());
+                    sendFormData(data);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
