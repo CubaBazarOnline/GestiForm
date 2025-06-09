@@ -7,77 +7,68 @@
     <meta name="description" content="GestiForm: Sistema avanzado para gestores de productos.">
     <title>GestiForm</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="manifest" href="manifest.json">
     <link rel="icon" href="assets/icons/icon-192x192.png">
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Registro</h1>
+            <h1>Registro de Productos</h1>
             <div class="header-controls">
-                <button id="themeToggle" aria-label="Cambiar tema">
-                    <i class="fas fa-moon"></i>
-                </button>
-                <button id="syncButton" aria-label="Sincronizar datos">
-                    <i class="fas fa-sync-alt"></i>
-                </button>
+                <button id="themeToggle" aria-label="Cambiar tema"></button>
+                <button id="syncButton" aria-label="Sincronizar datos"></button>
             </div>
         </header>
-        
-        <div class="connection-status" id="connectionStatus">
-            <i class="fas fa-wifi"></i> <span>Conectado</span>
-        </div>
-        
+        <div class="connection-status" id="connectionStatus"></div>
         <form id="productForm" class="needs-validation" novalidate>
-            <!-- Secciones del formulario mejorado -->
             <div class="form-sections">
-                <!-- Sección Cliente -->
                 <section class="form-section active" data-section="cliente">
                     <fieldset>
-                        <legend><i class="fas fa-user"></i> Datos del Cliente</legend>
-                        
+                        <legend>Datos del Cliente</legend>
                         <div class="form-group">
-                            <label for="nombreCliente">Nombre del Cliente*</label>
+                            <label for="nombreCliente">Nombre y Apellidos*</label>
                             <input type="text" id="nombreCliente" required pattern="[A-Za-záéíóúñÁÉÍÓÚÑ\s]{3,}">
-                            <div class="invalid-feedback">Ingrese un nombre válido (mínimo 3 caracteres)</div>
+                            <div class="invalid-feedback">Ingrese nombre y apellidos válidos</div>
                         </div>
-                        
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="ciCliente">Carnet de Identidad*</label>
-                                <input type="text" id="ciCliente" required pattern="[0-9]{7,10}">
-                                <div class="invalid-feedback">CI debe contener 7-10 dígitos</div>
+                                <input type="text" id="ciCliente" required pattern="[0-9]{11}">
+                                <div class="invalid-feedback">CI debe contener 11 dígitos</div>
                             </div>
                             <div class="form-group">
                                 <label for="telefonoCliente">Teléfono*</label>
-                                <input type="tel" id="telefonoCliente" required pattern="[0-9+]{7,15}">
-                                <div class="invalid-feedback">Teléfono inválido</div>
+                                <input type="tel" id="telefonoCliente" required pattern="(5|7)[0-9]{7}">
+                                <div class="invalid-feedback">Teléfono móvil cubano inválido (ej: 51234567)</div>
                             </div>
                         </div>
-                        
                         <div class="form-group">
-                            <label for="direccionCliente">Dirección*</label>
+                            <label for="direccionCliente">Dirección (Provincia y Municipio)*</label>
                             <textarea id="direccionCliente" rows="2" required minlength="10"></textarea>
-                            <div class="invalid-feedback">Dirección muy corta</div>
+                            <div class="invalid-feedback">Indique provincia y municipio</div>
                         </div>
-                        
                         <div class="form-navigation">
-                            <button type="button" class="next-section" data-next="producto">Siguiente <i class="fas fa-arrow-right"></i></button>
+                            <button type="button" class="next-section" data-next="producto">Siguiente</button>
                         </div>
                     </fieldset>
                 </section>
-                
-                <!-- Sección Producto -->
                 <section class="form-section" data-section="producto">
                     <fieldset>
-                        <legend><i class="fas fa-box-open"></i> Datos del Producto</legend>
-                        
+                        <legend>Datos del Producto</legend>
+                        <div class="form-group">
+                            <label for="nombreProducto">Nombre del Producto*</label>
+                            <input type="text" id="nombreProducto" required>
+                            <div class="invalid-feedback">Campo obligatorio</div>
+                        </div>
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="nombreProducto">Nombre del Producto*</label>
-                                <input type="text" id="nombreProducto" required>
-                                <div class="invalid-feedback">Campo obligatorio</div>
+                                <label for="origenProducto">Origen*</label>
+                                <select id="origenProducto" required>
+                                    <option value="">Seleccione...</option>
+                                    <option value="nacional">Nacional</option>
+                                    <option value="importado">Importado</option>
+                                    <option value="misiones">Misiones</option>
+                                </select>
                             </div>
                             <div class="form-group">
                                 <label for="estadoProducto">Estado*</label>
@@ -85,16 +76,14 @@
                                     <option value="">Seleccione...</option>
                                     <option value="nuevo">Nuevo</option>
                                     <option value="usado">Usado</option>
-                                    <option value="reacondicionado">Reacondicionado</option>
+                                    <option value="reparado">Reparado</option>
                                 </select>
                             </div>
                         </div>
-                        
                         <div class="form-group">
                             <label for="descripcionProducto">Descripción*</label>
                             <textarea id="descripcionProducto" rows="3" required></textarea>
                         </div>
-                        
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="fechaCaducidad">Fecha de Caducidad</label>
@@ -105,69 +94,53 @@
                                 <input type="number" id="cantidadProducto" min="1" value="1" required>
                             </div>
                         </div>
-                        
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="precioProducto">Precio*</label>
                                 <div class="input-group">
                                     <select id="moneda" required>
+                                        <option value="CUP">CUP</option>
+                                        <option value="MLC">MLC</option>
                                         <option value="USD">USD</option>
-                                        <option value="EUR">EUR</option>
-                                        <option value="BS">BS</option>
                                     </select>
-                                    <input type="number" id="precioProducto" step="0.01" min="0" required>
+                                    <input type="number" id="precioProducto" step="1" min="0" required>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label>Total</label>
-                                <div class="calculated-value" id="totalCalculado">$0.00</div>
+                                <div class="calculated-value" id="totalCalculado">$0.00 CUP</div>
                             </div>
                         </div>
-                        
                         <div class="form-checkboxes">
                             <div class="checkbox-group">
                                 <input type="checkbox" id="incluyeDomicilio">
-                                <label for="incluyeDomicilio">Incluye domicilio</label>
+                                <label for="incluyeDomicilio">Incluye entrega</label>
                             </div>
                             <div class="checkbox-group">
                                 <input type="checkbox" id="incluyeGarantia">
                                 <label for="incluyeGarantia">Incluye garantía</label>
                             </div>
                         </div>
-                        
                         <div class="form-group" id="tiempoGarantiaGroup" style="display: none;">
                             <label for="tiempoGarantia">Tiempo de Garantía (meses)</label>
                             <input type="number" id="tiempoGarantia" min="1" value="12">
                         </div>
-                        
                         <div class="form-navigation">
-                            <button type="button" class="prev-section" data-prev="cliente"><i class="fas fa-arrow-left"></i> Anterior</button>
+                            <button type="button" class="prev-section" data-prev="cliente">Anterior</button>
                             <button type="submit" id="btnGuardar">Guardar Producto</button>
                         </div>
                     </fieldset>
                 </section>
             </div>
         </form>
-        
-        <!-- Panel de compartir mejorado -->
         <div class="share-panel" id="sharePanel">
-            <h2><i class="fas fa-share-alt"></i> Compartir Producto</h2>
+            <h2>Compartir Producto</h2>
             <div class="share-options">
-                <button class="share-option whatsapp" data-share="whatsapp">
-                    <i class="fab fa-whatsapp"></i> WhatsApp
-                </button>
-                <button class="share-option telegram" data-share="telegram">
-                    <i class="fab fa-telegram"></i> Telegram
-                </button>
-                <button class="share-option messenger" data-share="messenger">
-                    <i class="fab fa-facebook-messenger"></i> Messenger
-                </button>
-                <button class="share-option sms" data-share="sms">
-                    <i class="fas fa-sms"></i> SMS
-                </button>
-                <button class="share-option todus" data-share="todus">
-                    <i class="fas fa-mobile-alt"></i> ToDus
-                </button>
+                <button class="share-option whatsapp" data-share="whatsapp">WhatsApp</button>
+                <button class="share-option telegram" data-share="telegram">Telegram</button>
+                <button class="share-option messenger" data-share="messenger">Messenger</button>
+                <button class="share-option sms" data-share="sms">SMS</button>
+                <button class="share-option todus" data-share="todus">ToDus</button>
             </div>
             <div class="share-preview" id="sharePreview">
                 <h3 id="shareProductName">Nombre del Producto</h3>
@@ -175,21 +148,20 @@
                 <div class="share-price" id="shareProductPrice">$0.00</div>
             </div>
         </div>
-        
-        <!-- Lista de productos con filtros -->
         <div class="product-dashboard">
             <div class="dashboard-header">
-                <h2><i class="fas fa-boxes"></i> Productos Registrados</h2>
+                <h2>Productos Registrados</h2>
                 <div class="dashboard-controls">
                     <input type="text" id="searchProducts" placeholder="Buscar productos...">
                     <select id="filterStatus">
                         <option value="all">Todos</option>
                         <option value="nuevo">Nuevos</option>
                         <option value="usado">Usados</option>
+                        <option value="reparado">Reparados</option>
                     </select>
+                    <button id="deleteAllBtn" class="danger-btn">Eliminar Todos</button>
                 </div>
             </div>
-            
             <div class="stats-row">
                 <div class="stat-card">
                     <div class="stat-value" id="totalProducts">0</div>
@@ -204,60 +176,46 @@
                     <div class="stat-label">Con Garantía</div>
                 </div>
             </div>
-            
             <div id="productsContainer" class="products-grid"></div>
-            
             <div class="pagination">
-                <button id="prevPage" disabled><i class="fas fa-chevron-left"></i></button>
+                <button id="prevPage" disabled>‹</button>
                 <span id="pageInfo">Página 1 de 1</span>
-                <button id="nextPage" disabled><i class="fas fa-chevron-right"></i></button>
+                <button id="nextPage" disabled>›</button>
             </div>
         </div>
     </div>
-    
-    <!-- Modal para compartir -->
     <div class="modal" id="shareModal">
         <div class="modal-content">
-            <span class="close-modal">&times;</span>
+            <span class="close-modal">×</span>
             <h3 id="modalShareTitle">Compartir producto</h3>
             <div id="modalShareContent">
                 <p>Preparando enlace para compartir...</p>
             </div>
         </div>
     </div>
-    
-    <!-- Modal de bonificación -->
     <div class="modal" id="bonusModal">
         <div class="modal-content">
-            <span class="close-modal" onclick="closeBonusModal()">&times;</span>
+            <span class="close-modal">×</span>
             <h3>Sistema de Bonificación</h3>
             <div id="bonusInfo">
-                <p>Te quedan <span id="bonusPoints">2</span> puntos de bonificación.</p>
-                <p>Cuando se agoten, necesitarás un código de activación para continuar.</p>
+                <p>Te ofrecemos: <span id="bonusPoints">(2)</span> puntos de bono.</p>
+                <p>Cuando se agoten, deberás esperar aproximadamente 24 horas para recibir 2 nuevo bonos gratis.</p>
+                <p>Si necesitas a tiempo completo la plataforma puedes ingresar el código de activación, si deseas uno contacta al +5350369270.</p>
             </div>
-            <div class="form-group" style="margin-top: 20px;">
+            <div class="form-group">
                 <label for="activationCode">Código de Activación</label>
                 <input type="text" id="activationCode" placeholder="Ingresa el código">
             </div>
-            <button onclick="validateActivationCode()" style="margin-top: 15px; width: 100%;">
-                <i class="fas fa-key"></i> Activar
-            </button>
+            <button>Activar</button>
         </div>
     </div>
-    
-    <!-- Scripts -->
     <script src="script.js" defer></script>
     <script>
-        // Registrar Service Worker
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
+        if('serviceWorker'in navigator){
+            window.addEventListener('load',()=>{
                 navigator.serviceWorker.register('service-worker.js')
-                    .then(registration => {
-                        console.log('ServiceWorker registrado con éxito:', registration.scope);
-                    })
-                    .catch(error => {
-                        console.log('Error al registrar ServiceWorker:', error);
-                    });
+                    .then(registration=>{console.log('ServiceWorker registrado:',registration.scope)})
+                    .catch(error=>{console.log('Error al registrar ServiceWorker:',error)});
             });
         }
     </script>
