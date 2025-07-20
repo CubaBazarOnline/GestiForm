@@ -1,1872 +1,1054 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#3498db">
-    <meta name="description" content="GestiForm: Sistema avanzado para gestores de productos.">
-    <title>GestiForm</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%233498db'><path d='M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm-2 8c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm4 8H8v-1c0-1.33 2.67-2 4-2s4 .67 4 2v1z'/></svg>">
-    <style>
-        :root {
-            --primary-color: #3498db;
-            --secondary-color: #2980b9;
-            --text-color: #333;
-            --text-light: #7f8c8d;
-            --bg-color: #fff;
-            --bg-secondary: #f5f5f5;
-            --border-color: #ddd;
-            --success-color: #2ecc71;
-            --warning-color: #f39c12;
-            --error-color: #e74c3c;
-            --shadow: 0 4px 6px rgba(0,0,0,0.1);
-            --transition: all 0.3s ease;
-        }
-        [data-theme="dark"] {
-            --primary-color: #3498db;
-            --secondary-color: #2980b9;
-            --text-color: #f5f5f5;
-            --text-light: #bdc3c7;
-            --bg-color: #1a1a1a;
-            --bg-secondary: #2d2d2d;
-            --border-color: #444;
-            --shadow: 0 4px 6px rgba(0,0,0,0.3);
-        }
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-        body {
-            font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
-            line-height: 1.6;
-            color: var(--text-color);
-            background-color: var(--bg-secondary);
-            margin: 0;
-            padding: 20px;
-            transition: var(--transition);
-        }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: var(--bg-color);
-            padding: 20px 30px;
-            border-radius: 10px;
-            box-shadow: var(--shadow);
-            transition: var(--transition);
-        }
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid var(--border-color);
-        }
-        .header-controls {
-            display: flex;
-            gap: 10px;
-        }
-        h1, h2, h3 {
-            color: var(--primary-color);
-            margin-bottom: 20px;
-        }
-        .connection-status {
-            padding: 8px 15px;
-            background-color: var(--success-color);
-            color: #fff;
-            border-radius: 20px;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 20px;
-            font-size: 0.9em;
-        }
-        .connection-status.offline {
-            background-color: var(--error-color);
-        }
-        .form-sections {
-            position: relative;
-            min-height: 500px;
-        }
-        .form-section {
-            display: none;
-            animation: fadeIn 0.5s ease;
-        }
-        .form-section.active {
-            display: block;
-        }
-        fieldset {
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 25px;
-            margin-bottom: 20px;
-            background: var(--bg-secondary);
-            transition: var(--transition);
-        }
-        legend {
-            padding: 0 15px;
-            font-weight: bold;
-            color: var(--primary-color);
-            font-size: 1.1em;
-        }
-        .form-group {
-            margin-bottom: 20px;
-        }
-        .form-row {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-        .form-row .form-group {
-            flex: 1;
-            margin-bottom: 0;
-        }
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: var(--text-color);
-        }
-        input, textarea, select {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            font-size: 16px;
-            background: var(--bg-color);
-            color: var(--text-color);
-            transition: var(--transition);
-        }
-        input:focus, textarea:focus, select:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(52,152,219,0.2);
-        }
-        .input-group {
-            display: flex;
-        }
-        .input-group select {
-            flex: 0 0 80px;
-            border-top-right-radius: 0;
-            border-bottom-right-radius: 0;
-            border-right: none;
-        }
-        .input-group input {
-            border-top-left-radius: 0;
-            border-bottom-left-radius: 0;
-        }
-        .calculated-value {
-            padding: 12px;
-            background: var(--bg-secondary);
-            border-radius: 6px;
-            font-weight: bold;
-            text-align: center;
-        }
-        .form-checkboxes {
-            display: flex;
-            gap: 20px;
-            margin: 20px 0;
-        }
-        .checkbox-group {
-            display: flex;
-            align-items: center;
-        }
-        .checkbox-group input {
-            width: auto;
-            margin-right: 10px;
-        }
-        .invalid-feedback {
-            color: var(--error-color);
-            font-size: 0.8em;
-            margin-top: 5px;
-            display: none;
-        }
-        input:invalid, textarea:invalid, select:invalid {
-            border-color: var(--error-color);
-        }
-        input:invalid + .invalid-feedback, textarea:invalid + .invalid-feedback, select:invalid + .invalid-feedback {
-            display: block;
-        }
-        .form-navigation {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 30px;
-        }
-        button {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 500;
-            transition: var(--transition);
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-        button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-        button:hover {
-            transform: translateY(-2px);
-        }
-        button:active {
-            transform: translateY(0);
-        }
-        #btnGuardar {
-            background-color: var(--primary-color);
-            color: #fff;
-        }
-        #btnGuardar:hover {
-            background-color: var(--secondary-color);
-        }
-        .prev-section, .next-section {
-            background-color: var(--bg-secondary);
-            color: var(--text-color);
-        }
-        .prev-section:hover, .next-section:hover {
-            background-color: var(--border-color);
-        }
-        .danger-btn {
-            background-color: var(--error-color);
-            color: #fff;
-        }
-        .danger-btn:hover {
-            background-color: #c0392b;
-        }
-        .share-panel {
-            margin: 40px 0;
-            padding: 25px;
-            background: var(--bg-secondary);
-            border-radius: 10px;
-            box-shadow: var(--shadow);
-        }
-        .share-options {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
-        }
-        .share-option {
-            padding: 12px;
-            border-radius: 6px;
-            color: #fff;
-            font-weight: 500;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-        }
-        .whatsapp {
-            background-color: #25D366;
-        }
-        .telegram {
-            background-color: #0088CC;
-        }
-        .messenger {
-            background-color: #006AFF;
-        }
-        .sms {
-            background-color: #5BC236;
-        }
-        .todus {
-            background-color: #FF6B00;
-        }
-        .share-preview {
-            padding: 20px;
-            background: var(--bg-color);
-            border-radius: 8px;
-            margin-top: 20px;
-            border: 1px solid var(--border-color);
-        }
-        .share-price {
-            font-size: 1.5em;
-            font-weight: bold;
-            color: var(--primary-color);
-            margin-top: 10px;
-        }
-        .product-dashboard {
-            margin-top: 40px;
-        }
-        .dashboard-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 20px;
-            margin-bottom: 25px;
-        }
-        .dashboard-controls {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-        }
-        #searchProducts {
-            width: 250px;
-            padding: 10px 15px;
-        }
-        #filterStatus {
-            padding: 10px 15px;
-            min-width: 150px;
-        }
-        .stats-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        .stat-card {
-            background: var(--bg-secondary);
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center;
-            box-shadow: var(--shadow);
-        }
-        .stat-value {
-            font-size: 2em;
-            font-weight: bold;
-            color: var(--primary-color);
-            margin-bottom: 5px;
-        }
-        .stat-label {
-            color: var(--text-light);
-            font-size: 0.9em;
-        }
-        .products-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-            margin: 30px 0;
-        }
-        .product-card {
-            background: var(--bg-color);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 20px;
-            transition: var(--transition);
-            box-shadow: var(--shadow);
-        }
-        .product-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-        }
-        .product-card h3 {
-            margin-bottom: 10px;
-            font-size: 1.2em;
-        }
-        .product-card .product-meta {
-            display: flex;
-            justify-content: space-between;
-            color: var(--text-light);
-            font-size: 0.9em;
-            margin-bottom: 15px;
-        }
-        .product-card .product-price {
-            font-size: 1.3em;
-            font-weight: bold;
-            color: var(--primary-color);
-            margin: 10px 0;
-        }
-        .product-card .product-details {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin: 15px 0;
-        }
-        .product-card .detail-item {
-            background: var(--bg-secondary);
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-size: 0.9em;
-        }
-        .product-card .detail-item strong {
-            display: block;
-            font-size: 0.8em;
-            color: var(--text-light);
-        }
-        .product-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-        }
-        .product-actions button {
-            flex: 1;
-            padding: 8px;
-            font-size: 0.9em;
-        }
-        .pagination {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 20px;
-            margin-top: 30px;
-        }
-        .pagination button {
-            padding: 8px 15px;
-            min-width: 40px;
-        }
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-        .modal.active {
-            display: flex;
-        }
-        .modal-content {
-            background: var(--bg-color);
-            padding: 30px;
-            border-radius: 10px;
-            max-width: 500px;
-            width: 90%;
-            max-height: 90vh;
-            overflow-y: auto;
-            position: relative;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        }
-        .close-modal {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            font-size: 1.5em;
-            cursor: pointer;
-            color: var(--text-light);
-        }
-        #bonusInfo {
-            padding: 15px;
-            background: var(--bg-secondary);
-            border-radius: 8px;
-            margin-bottom: 15px;
-        }
-        #bonusInfo p {
-            margin-bottom: 10px;
-        }
-        #bonusPoints {
-            font-weight: bold;
-            color: var(--primary-color);
-            font-size: 1.2em;
-        }
-        .bonus-counter {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: var(--primary-color);
-            color: #fff;
-            padding: 10px 15px;
-            border-radius: 20px;
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: var(--shadow);
-            cursor: pointer;
-        }
-        .bonus-counter.warning {
-            background: var(--warning-color);
-        }
-        .bonus-counter.critical {
-            background: var(--error-color);
-        }
-        .notification {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 12px 24px;
-            border-radius: 4px;
-            color: #fff;
-            z-index: 1000;
-            opacity: 1;
-            transition: opacity 0.3s ease;
-        }
-        .notification.info {
-            background-color: #3498db;
-        }
-        .notification.success {
-            background-color: #2ecc71;
-        }
-        .notification.warning {
-            background-color: #f39c12;
-        }
-        .notification.error {
-            background-color: #e74c3c;
-        }
-        .notification.fade-out {
-            opacity: 0;
-        }
-        .offline-warning {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--error-color);
-            color: #fff;
-            padding: 10px 20px;
-            border-radius: 5px;
-            z-index: 1000;
-            display: none;
-        }
-        .offline .offline-warning {
-            display: block;
-        }
-        .login-container {
-            max-width: 400px;
-            margin: 50px auto;
-            padding: 30px;
-            background: var(--bg-color);
-            border-radius: 10px;
-            box-shadow: var(--shadow);
-        }
-        .login-title {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        .login-form .form-group {
-            margin-bottom: 20px;
-        }
-        .login-btn {
-            width: 100%;
-            padding: 12px;
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        .login-btn:hover {
-            background-color: var(--secondary-color);
-        }
-        .export-options {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
-        .export-btn {
-            padding: 8px 15px;
-            border-radius: 6px;
-            background-color: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            cursor: pointer;
-        }
-        .export-btn:hover {
-            background-color: var(--border-color);
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        @media (max-width: 768px) {
-            .form-row {
-                flex-direction: column;
-                gap: 0;
-            }
-            .dashboard-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            .dashboard-controls {
-                width: 100%;
-                flex-direction: column;
-            }
-            #searchProducts {
-                width: 100%;
-            }
-            .share-options {
-                grid-template-columns: 1fr 1fr;
-            }
-            .bonus-counter {
-                bottom: 70px;
-                right: 15px;
-            }
-        }
-        @media (max-width: 480px) {
-            .container {
-                padding: 15px;
-            }
-            .share-options {
-                grid-template-columns: 1fr;
-            }
-            .products-grid {
-                grid-template-columns: 1fr;
-            }
-            .modal-content {
-                padding: 20px;
-            }
-            .dashboard-controls button {
-                width: 100%;
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="theme-color" content="#3498db">
+<meta name="description" content="GestiForm: Sistema avanzado para gestores de productos.">
+<title>GestiForm</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%233498db'><path d='M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm-2 8c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm4 8H8v-1c0-1.33 2.67-2 4-2s4 .67 4 2v1z'/></svg>">
+<style>
+:root{--primary-color:#3498db;--secondary-color:#2980b9;--text-color:#333;--text-light:#7f8c8d;--bg-color:#fff;--bg-secondary:#f5f5f5;--border-color:#ddd;--success-color:#2ecc71;--warning-color:#f39c12;--error-color:#e74c3c;--shadow:0 4px 6px rgba(0,0,0,0.1);--transition:all 0.3s ease;}
+[data-theme="dark"]{--primary-color:#3498db;--secondary-color:#2980b9;--text-color:#f5f5f5;--text-light:#bdc3c7;--bg-color:#1a1a1a;--bg-secondary:#2d2d2d;--border-color:#444;--shadow:0 4px 6px rgba(0,0,0,0.3);}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI','Roboto','Helvetica Neue',Arial,sans-serif;line-height:1.6;color:var(--text-color);background-color:var(--bg-secondary);margin:0;padding:20px;transition:var(--transition);}
+.container{max-width:1200px;margin:0 auto;background:var(--bg-color);padding:20px 30px;border-radius:10px;box-shadow:var(--shadow);transition:var(--transition);}
+header{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;padding-bottom:15px;border-bottom:1px solid var(--border-color);}
+.header-controls{display:flex;gap:10px;}
+h1,h2,h3{color:var(--primary-color);margin-bottom:20px;}
+.connection-status{padding:8px 15px;background-color:var(--success-color);color:#fff;border-radius:20px;display:inline-flex;align-items:center;gap:8px;margin-bottom:20px;font-size:0.9em;}
+.connection-status.offline{background-color:var(--error-color);}
+.form-sections{position:relative;min-height:500px;}
+.form-section{display:none;animation:fadeIn 0.5s ease;}
+.form-section.active{display:block;}
+fieldset{border:1px solid var(--border-color);border-radius:8px;padding:25px;margin-bottom:20px;background:var(--bg-secondary);transition:var(--transition);}
+legend{padding:0 15px;font-weight:bold;color:var(--primary-color);font-size:1.1em;}
+.form-group{margin-bottom:20px;}
+.form-row{display:flex;gap:20px;margin-bottom:20px;}
+.form-row .form-group{flex:1;margin-bottom:0;}
+label{display:block;margin-bottom:8px;font-weight:500;color:var(--text-color);}
+input,textarea,select{width:100%;padding:12px;border:1px solid var(--border-color);border-radius:6px;font-size:16px;background:var(--bg-color);color:var(--text-color);transition:var(--transition);}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--primary-color);box-shadow:0 0 0 3px rgba(52,152,219,0.2);}
+.input-group{display:flex;}
+.input-group select{flex:0 0 80px;border-top-right-radius:0;border-bottom-right-radius:0;border-right:none;}
+.input-group input{border-top-left-radius:0;border-bottom-left-radius:0;}
+.calculated-value{padding:12px;background:var(--bg-secondary);border-radius:6px;font-weight:bold;text-align:center;}
+.form-checkboxes{display:flex;gap:20px;margin:20px 0;}
+.checkbox-group{display:flex;align-items:center;}
+.checkbox-group input{width:auto;margin-right:10px;}
+.invalid-feedback{color:var(--error-color);font-size:0.8em;margin-top:5px;display:none;}
+input:invalid,textarea:invalid,select:invalid{border-color:var(--error-color);}
+input:invalid+.invalid-feedback,textarea:invalid+.invalid-feedback,select:invalid+.invalid-feedback{display:block;}
+.form-navigation{display:flex;justify-content:space-between;margin-top:30px;}
+button{padding:12px 24px;border:none;border-radius:6px;cursor:pointer;font-size:16px;font-weight:500;transition:var(--transition);display:inline-flex;align-items:center;gap:8px;}
+button:disabled{opacity:0.6;cursor:not-allowed;}
+button:hover{transform:translateY(-2px);}
+button:active{transform:translateY(0);}
+#btnGuardar{background-color:var(--primary-color);color:#fff;}
+#btnGuardar:hover{background-color:var(--secondary-color);}
+.prev-section,.next-section{background-color:var(--bg-secondary);color:var(--text-color);}
+.prev-section:hover,.next-section:hover{background-color:var(--border-color);}
+.danger-btn{background-color:var(--error-color);color:#fff;}
+.danger-btn:hover{background-color:#c0392b;}
+.share-panel{margin:40px 0;padding:25px;background:var(--bg-secondary);border-radius:10px;box-shadow:var(--shadow);}
+.share-options{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:15px;margin:20px 0;}
+.share-option{padding:12px;border-radius:6px;color:#fff;font-weight:500;text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px;}
+.whatsapp{background-color:#25D366;}
+.telegram{background-color:#0088CC;}
+.messenger{background-color:#006AFF;}
+.sms{background-color:#5BC236;}
+.todus{background-color:#FF6B00;}
+.share-preview{padding:20px;background:var(--bg-color);border-radius:8px;margin-top:20px;border:1px solid var(--border-color);}
+.share-price{font-size:1.5em;font-weight:bold;color:var(--primary-color);margin-top:10px;}
+.product-dashboard{margin-top:40px;}
+.dashboard-header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px;margin-bottom:25px;}
+.dashboard-controls{display:flex;gap:15px;align-items:center;}
+#searchProducts{width:250px;padding:10px 15px;}
+#filterStatus{padding:10px 15px;min-width:150px;}
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;margin-bottom:30px;}
+.stat-card{background:var(--bg-secondary);padding:20px;border-radius:8px;text-align:center;box-shadow:var(--shadow);}
+.stat-value{font-size:2em;font-weight:bold;color:var(--primary-color);margin-bottom:5px;}
+.stat-label{color:var(--text-light);font-size:0.9em;}
+.products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;margin:30px 0;}
+.product-card{background:var(--bg-color);border:1px solid var(--border-color);border-radius:8px;padding:20px;transition:var(--transition);box-shadow:var(--shadow);}
+.product-card:hover{transform:translateY(-5px);box-shadow:0 10px 20px rgba(0,0,0,0.1);}
+.product-card h3{margin-bottom:10px;font-size:1.2em;}
+.product-card .product-meta{display:flex;justify-content:space-between;color:var(--text-light);font-size:0.9em;margin-bottom:15px;}
+.product-card .product-price{font-size:1.3em;font-weight:bold;color:var(--primary-color);margin:10px 0;}
+.product-card .product-details{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:15px 0;}
+.product-card .detail-item{background:var(--bg-secondary);padding:8px 12px;border-radius:6px;font-size:0.9em;}
+.product-card .detail-item strong{display:block;font-size:0.8em;color:var(--text-light);}
+.product-actions{display:flex;gap:10px;margin-top:15px;}
+.product-actions button{flex:1;padding:8px;font-size:0.9em;}
+.pagination{display:flex;justify-content:center;align-items:center;gap:20px;margin-top:30px;}
+.pagination button{padding:8px 15px;min-width:40px;}
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;justify-content:center;align-items:center;}
+.modal.active{display:flex;}
+.modal-content{background:var(--bg-color);padding:30px;border-radius:10px;max-width:500px;width:90%;max-height:90vh;overflow-y:auto;position:relative;box-shadow:0 5px 15px rgba(0,0,0,0.3);}
+.close-modal{position:absolute;top:15px;right:15px;font-size:1.5em;cursor:pointer;color:var(--text-light);}
+#bonusInfo{padding:15px;background:var(--bg-secondary);border-radius:8px;margin-bottom:15px;}
+#bonusInfo p{margin-bottom:10px;}
+#bonusPoints{font-weight:bold;color:var(--primary-color);font-size:1.2em;}
+.bonus-counter{position:fixed;bottom:20px;right:20px;background:var(--primary-color);color:#fff;padding:10px 15px;border-radius:20px;z-index:1000;display:flex;align-items:center;gap:8px;box-shadow:var(--shadow);cursor:pointer;}
+.bonus-counter.warning{background:var(--warning-color);}
+.bonus-counter.critical{background:var(--error-color);}
+.notification{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:4px;color:#fff;z-index:1000;opacity:1;transition:opacity 0.3s ease;}
+.notification.info{background-color:#3498db;}
+.notification.success{background-color:#2ecc71;}
+.notification.warning{background-color:#f39c12;}
+.notification.error{background-color:#e74c3c;}
+.notification.fade-out{opacity:0;}
+.offline-warning{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--error-color);color:#fff;padding:10px 20px;border-radius:5px;z-index:1000;display:none;}
+.offline .offline-warning{display:block;}
+.login-container{max-width:400px;margin:50px auto;padding:30px;background:var(--bg-color);border-radius:10px;box-shadow:var(--shadow);}
+.login-title{text-align:center;margin-bottom:30px;}
+.login-form .form-group{margin-bottom:20px;}
+.login-btn{width:100%;padding:12px;background-color:var(--primary-color);color:white;border:none;border-radius:6px;font-size:16px;cursor:pointer;}
+.login-btn:hover{background-color:var(--secondary-color);}
+.export-options{display:flex;gap:10px;margin-top:20px;}
+.export-btn{padding:8px 15px;border-radius:6px;background-color:var(--bg-secondary);border:1px solid var(--border-color);cursor:pointer;}
+.export-btn:hover{background-color:var(--border-color);}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+@media (max-width:768px){.form-row{flex-direction:column;gap:0;}.dashboard-header{flex-direction:column;align-items:flex-start;}.dashboard-controls{width:100%;flex-direction:column;}#searchProducts{width:100%;}.share-options{grid-template-columns:1fr 1fr;}.bonus-counter{bottom:70px;right:15px;}}
+@media (max-width:480px){.container{padding:15px;}.share-options{grid-template-columns:1fr;}.products-grid{grid-template-columns:1fr;}.modal-content{padding:20px;}.dashboard-controls button{width:100%;}}
+</style>
 </head>
 <body>
-    <div id="loginScreen" class="login-container">
-        <h2 class="login-title">Iniciar Sesión</h2>
-        <form id="loginForm" class="login-form">
-            <div class="form-group">
-                <label for="loginEmail">Correo Electrónico</label>
-                <input type="email" id="loginEmail" required>
-            </div>
-            <div class="form-group">
-                <label for="loginPassword">Contraseña</label>
-                <input type="password" id="loginPassword" required>
-            </div>
-            <button type="submit" class="login-btn">Ingresar</button>
-            <div class="form-group" style="text-align: center; margin-top: 15px;">
-                <a href="#" id="registerLink">Registrar nueva cuenta</a>
-            </div>
-        </form>
-    </div>
-
-    <div id="appContainer" class="container" style="display: none;">
-        <header>
-            <h1>Registro de Productos</h1>
-            <div class="header-controls">
-                <button id="themeToggle" aria-label="Cambiar tema"></button>
-                <button id="syncButton" aria-label="Sincronizar datos"></button>
-                <button id="logoutButton" aria-label="Cerrar sesión">👤</button>
-            </div>
-        </header>
-        <div class="connection-status" id="connectionStatus"></div>
-        <form id="productForm" class="needs-validation" novalidate>
-            <div class="form-sections">
-                <section class="form-section active" data-section="cliente">
-                    <fieldset>
-                        <legend>Datos del Cliente</legend>
-                        <div class="form-group">
-                            <label for="nombreCliente">Nombre y Apellidos*</label>
-                            <input type="text" id="nombreCliente" required pattern="[A-Za-záéíóúñÁÉÍÓÚÑ\s]{3,}">
-                            <div class="invalid-feedback">Ingrese nombre y apellidos válidos</div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="ciCliente">Carnet de Identidad*</label>
-                                <input type="text" id="ciCliente" required pattern="[0-9]{11}">
-                                <div class="invalid-feedback">CI debe contener 11 dígitos</div>
-                            </div>
-                            <div class="form-group">
-                                <label for="telefonoCliente">Teléfono*</label>
-                                <input type="tel" id="telefonoCliente" required pattern="(5|7)[0-9]{7}">
-                                <div class="invalid-feedback">Teléfono móvil cubano inválido (ej: 51234567)</div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="direccionCliente">Dirección (Provincia y Municipio)*</label>
-                            <textarea id="direccionCliente" rows="2" required minlength="10"></textarea>
-                            <div class="invalid-feedback">Indique provincia y municipio</div>
-                        </div>
-                        <div class="form-navigation">
-                            <button type="button" class="next-section" data-next="producto">Siguiente</button>
-                        </div>
-                    </fieldset>
-                </section>
-                <section class="form-section" data-section="producto">
-                    <fieldset>
-                        <legend>Datos del Producto</legend>
-                        <div class="form-group">
-                            <label for="nombreProducto">Nombre del Producto*</label>
-                            <input type="text" id="nombreProducto" required>
-                            <div class="invalid-feedback">Campo obligatorio</div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="origenProducto">Origen*</label>
-                                <select id="origenProducto" required>
-                                    <option value="">Seleccione...</option>
-                                    <option value="nacional">Nacional</option>
-                                    <option value="importado">Importado</option>
-                                    <option value="misiones">Misiones</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="estadoProducto">Estado*</label>
-                                <select id="estadoProducto" required>
-                                    <option value="">Seleccione...</option>
-                                    <option value="nuevo">Nuevo</option>
-                                    <option value="usado">Usado</option>
-                                    <option value="reparado">Reparado</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="descripcionProducto">Descripción*</label>
-                            <textarea id="descripcionProducto" rows="3" required></textarea>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="fechaCaducidad">Fecha de Caducidad</label>
-                                <input type="date" id="fechaCaducidad" min="${new Date().toISOString().split('T')[0]}">
-                            </div>
-                            <div class="form-group">
-                                <label for="cantidadProducto">Cantidad*</label>
-                                <input type="number" id="cantidadProducto" min="1" value="1" required>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="precioProducto">Precio*</label>
-                                <div class="input-group">
-                                    <select id="moneda" required>
-                                        <option value="CUP">CUP</option>
-                                        <option value="MLC">MLC</option>
-                                        <option value="USD">USD</option>
-                                    </select>
-                                    <input type="number" id="precioProducto" step="1" min="0" required>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label>Total</label>
-                                <div class="calculated-value" id="totalCalculado">$0.00 CUP</div>
-                            </div>
-                        </div>
-                        <div class="form-checkboxes">
-                            <div class="checkbox-group">
-                                <input type="checkbox" id="incluyeDomicilio">
-                                <label for="incluyeDomicilio">Incluye entrega</label>
-                            </div>
-                            <div class="checkbox-group">
-                                <input type="checkbox" id="incluyeGarantia">
-                                <label for="incluyeGarantia">Incluye garantía</label>
-                            </div>
-                        </div>
-                        <div class="form-group" id="tiempoGarantiaGroup" style="display: none;">
-                            <label for="tiempoGarantia">Tiempo de Garantía (meses)</label>
-                            <input type="number" id="tiempoGarantia" min="1" value="12">
-                        </div>
-                        <div class="form-navigation">
-                            <button type="button" class="prev-section" data-prev="cliente">Anterior</button>
-                            <button type="submit" id="btnGuardar">Guardar Producto</button>
-                        </div>
-                    </fieldset>
-                </section>
-            </div>
-        </form>
-        <div class="share-panel" id="sharePanel">
-            <h2>Compartir Producto</h2>
-            <div class="share-options">
-                <button class="share-option whatsapp" data-share="whatsapp">WhatsApp</button>
-                <button class="share-option telegram" data-share="telegram">Telegram</button>
-                <button class="share-option messenger" data-share="messenger">Messenger</button>
-                <button class="share-option sms" data-share="sms">SMS</button>
-                <button class="share-option todus" data-share="todus">ToDus</button>
-            </div>
-            <div class="share-preview" id="sharePreview">
-                <h3 id="shareProductName">Nombre del Producto</h3>
-                <p id="shareProductDesc">Descripción del producto</p>
-                <div class="share-price" id="shareProductPrice">$0.00</div>
-            </div>
-        </div>
-        <div class="product-dashboard">
-            <div class="dashboard-header">
-                <h2>Productos Registrados</h2>
-                <div class="dashboard-controls">
-                    <input type="text" id="searchProducts" placeholder="Buscar productos...">
-                    <select id="filterStatus">
-                        <option value="all">Todos</option>
-                        <option value="nuevo">Nuevos</option>
-                        <option value="usado">Usados</option>
-                        <option value="reparado">Reparados</option>
-                    </select>
-                    <div class="export-options">
-                        <button id="exportCSV" class="export-btn">Exportar CSV</button>
-                        <button id="exportPDF" class="export-btn">Exportar PDF</button>
-                    </div>
-                    <button id="deleteAllBtn" class="danger-btn">Eliminar Todos</button>
-                </div>
-            </div>
-            <div class="stats-row">
-                <div class="stat-card">
-                    <div class="stat-value" id="totalProducts">0</div>
-                    <div class="stat-label">Total Productos</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="totalInventory">$0.00</div>
-                    <div class="stat-label">Valor Total</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="warrantyProducts">0</div>
-                    <div class="stat-label">Con Garantía</div>
-                </div>
-            </div>
-            <div id="productsContainer" class="products-grid"></div>
-            <div class="pagination">
-                <button id="prevPage" disabled>‹</button>
-                <span id="pageInfo">Página 1 de 1</span>
-                <button id="nextPage" disabled>›</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal" id="shareModal">
-        <div class="modal-content">
-            <span class="close-modal">×</span>
-            <h3 id="modalShareTitle">Compartir producto</h3>
-            <div id="modalShareContent">
-                <p>Preparando enlace para compartir...</p>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal" id="bonusModal">
-        <div class="modal-content">
-            <span class="close-modal">×</span>
-            <h3>Sistema de Bonificación</h3>
-            <div id="bonusInfo">
-                <p>Te ofrecemos: <span id="bonusPoints">(2)</span> puntos de bono.</p>
-                <p>Cuando se agoten, deberás esperar aproximadamente 24 horas para recibir 2 nuevo bonos gratis.</p>
-                <p>Si necesitas a tiempo completo la plataforma puedes ingresar el código de activación, si deseas uno contacta al +5350369270.</p>
-            </div>
-            <div class="form-group">
-                <label for="activationCode">Código de Activación</label>
-                <input type="text" id="activationCode" placeholder="Ingresa el código">
-            </div>
-            <button onclick="validateActivationCode()">Activar</button>
-        </div>
-    </div>
-
-    <div class="modal" id="registerModal">
-        <div class="modal-content">
-            <span class="close-modal">×</span>
-            <h3>Registrar Nueva Cuenta</h3>
-            <form id="registerForm">
-                <div class="form-group">
-                    <label for="registerName">Nombre Completo</label>
-                    <input type="text" id="registerName" required>
-                </div>
-                <div class="form-group">
-                    <label for="registerEmail">Correo Electrónico</label>
-                    <input type="email" id="registerEmail" required>
-                </div>
-                <div class="form-group">
-                    <label for="registerPassword">Contraseña</label>
-                    <input type="password" id="registerPassword" required>
-                </div>
-                <div class="form-group">
-                    <label for="registerConfirmPassword">Confirmar Contraseña</label>
-                    <input type="password" id="registerConfirmPassword" required>
-                </div>
-                <button type="submit" class="login-btn">Registrar</button>
-            </form>
-        </div>
-    </div>
-
-    <script>
-        // Configuración inicial
-        const API_URL = 'https://api.example.com/products';
-        const CACHE_NAME = 'productos-cache-v2';
-        const OFFLINE_DATA_KEY = 'offline-products';
-        const SYNC_INTERVAL = 300000;
-        const ACTIVATION_CODE = "GF+30";
-        const BONUS_EXPIRATION_DAYS = 30;
-        const ITEMS_PER_PAGE = 6;
-
-        // Estado de la aplicación
-        let productos = [];
-        let currentPage = 1;
-        let onlineStatus = navigator.onLine;
-        let deferredPrompt = null;
-        let bonusPoints = 2;
-        let activatedUntil = null;
-        let currentUser = null;
-
-        // Elementos del DOM
-        const loginScreen = document.getElementById('loginScreen');
-        const appContainer = document.getElementById('appContainer');
-        const loginForm = document.getElementById('loginForm');
-        const registerLink = document.getElementById('registerLink');
-        const logoutButton = document.getElementById('logoutButton');
-        const registerModal = document.getElementById('registerModal');
-        const registerForm = document.getElementById('registerForm');
-        const form = document.getElementById('productForm');
-        const productsContainer = document.getElementById('productsContainer');
-        const connectionStatus = document.getElementById('connectionStatus');
-        const themeToggle = document.getElementById('themeToggle');
-        const syncButton = document.getElementById('syncButton');
-        const sharePanel = document.getElementById('sharePanel');
-        const shareModal = document.getElementById('shareModal');
-        const closeModal = document.querySelectorAll('.close-modal');
-        const bonusModal = document.getElementById('bonusModal');
-        const exportCSV = document.getElementById('exportCSV');
-        const exportPDF = document.getElementById('exportPDF');
-
-        // Inicialización de la aplicación
-        document.addEventListener('DOMContentLoaded', initApp);
-
-        async function initApp() {
-            setupTheme();
-            setupConnectivity();
-            registerServiceWorker();
-            setupBonusSystem();
-            setupLoginSystem();
-            setupFormEvents();
-            setupShareEvents();
-            setupDashboardEvents();
-            setupModalEvents();
-            startSyncInterval();
-            setupPWAInstallPrompt();
-            setupExportButtons();
-            
-            // Verificar si hay usuario autenticado
-            const savedUser = localStorage.getItem('currentUser');
-            if (savedUser) {
-                currentUser = JSON.parse(savedUser);
-                showApp();
-                await loadProducts();
-            } else {
-                showLogin();
-            }
-        }
-
-        function showLogin() {
-            loginScreen.style.display = 'block';
-            appContainer.style.display = 'none';
-        }
-
-        function showApp() {
-            loginScreen.style.display = 'none';
-            appContainer.style.display = 'block';
-            updateDashboard();
-        }
-
-        function setupLoginSystem() {
-            loginForm.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                const email = document.getElementById('loginEmail').value;
-                const password = document.getElementById('loginPassword').value;
-                
-                // Simulación de autenticación
-                try {
-                    currentUser = await authenticateUser(email, password);
-                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                    showApp();
-                    await loadProducts();
-                    showNotification('Sesión iniciada correctamente', 'success');
-                } catch (error) {
-                    showNotification('Credenciales incorrectas', 'error');
-                }
-            });
-
-            registerLink.addEventListener('click', function(e) {
-                e.preventDefault();
-                registerModal.classList.add('active');
-            });
-
-            registerForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                const name = document.getElementById('registerName').value;
-                const email = document.getElementById('registerEmail').value;
-                const password = document.getElementById('registerPassword').value;
-                const confirmPassword = document.getElementById('registerConfirmPassword').value;
-                
-                if (password !== confirmPassword) {
-                    showNotification('Las contraseñas no coinciden', 'error');
-                    return;
-                }
-                
-                // Simulación de registro
-                currentUser = {
-                    id: Date.now().toString(),
-                    name: name,
-                    email: email
-                };
-                
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                registerModal.classList.remove('active');
-                showApp();
-                loadProducts();
-                showNotification('Cuenta creada correctamente', 'success');
-            });
-
-            logoutButton.addEventListener('click', function() {
-                currentUser = null;
-                localStorage.removeItem('currentUser');
-                showLogin();
-                showNotification('Sesión cerrada', 'info');
-            });
-        }
-
-        function authenticateUser(email, password) {
-            return new Promise((resolve, reject) => {
-                setTimeout(() => {
-                    // Simulación de autenticación
-                    if (email && password) {
-                        resolve({
-                            id: 'user-' + Date.now(),
-                            name: email.split('@')[0],
-                            email: email
-                        });
-                    } else {
-                        reject(new Error('Credenciales inválidas'));
-                    }
-                }, 500);
-            });
-        }
-
-        function setupExportButtons() {
-            exportCSV.addEventListener('click', exportToCSV);
-            exportPDF.addEventListener('click', exportToPDF);
-        }
-
-        function exportToCSV() {
-            if (productos.length === 0) {
-                showNotification('No hay productos para exportar', 'warning');
-                return;
-            }
-
-            let csvContent = "data:text/csv;charset=utf-8,";
-            
-            // Encabezados
-            csvContent += "Nombre Producto,Descripción,Precio,Cantidad,Cliente,Teléfono\n";
-            
-            // Datos
-            productos.forEach(producto => {
-                const row = [
-                    `"${producto.producto.nombre}"`,
-                    `"${producto.producto.descripcion}"`,
-                    producto.producto.precio,
-                    producto.producto.cantidad,
-                    `"${producto.cliente.nombre}"`,
-                    producto.cliente.telefono
-                ].join(",");
-                csvContent += row + "\n";
-            });
-            
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", "productos.csv");
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            
-            showNotification('Exportación a CSV completada', 'success');
-        }
-
-        function exportToPDF() {
-            if (productos.length === 0) {
-                showNotification('No hay productos para exportar', 'warning');
-                return;
-            }
-
-            // Simulación de exportación a PDF
-            showNotification('Preparando documento PDF...', 'info');
-            setTimeout(() => {
-                showNotification('Exportación a PDF completada (simulación)', 'success');
-            }, 1500);
-        }
-
-        function setupConnectivity() {
-            updateOnlineStatus();
-            window.addEventListener('online', updateOnlineStatus);
-            window.addEventListener('offline', updateOnlineStatus);
-        }
-
-        async function checkInternetConnection() {
-            try {
-                const response = await fetch('https://www.google.com/favicon.ico', {
-                    method: 'HEAD',
-                    mode: 'no-cors',
-                    cache: 'no-cache'
-                });
-                return true;
-            } catch (error) {
-                return false;
-            }
-        }
-
-        async function updateOnlineStatus() {
-            const wasOnline = onlineStatus;
-            onlineStatus = await checkInternetConnection();
-            if (onlineStatus !== wasOnline) {
-                if (onlineStatus) {
-                    connectionStatus.innerHTML = '<span>Conectado</span>';
-                    connectionStatus.className = 'connection-status';
-                    await checkOfflineData();
-                    showNotification('Conexión a Internet restablecida', 'success');
-                } else {
-                    connectionStatus.innerHTML = '<span>Offline</span>';
-                    connectionStatus.className = 'connection-status offline';
-                    showOfflineWarning();
-                    showNotification('Sin conexión a Internet. Trabajando en modo offline.', 'warning');
-                }
-            }
-        }
-
-        async function checkOfflineData() {
-            const offlineData = JSON.parse(localStorage.getItem(OFFLINE_DATA_KEY)) || [];
-            if (offlineData.length > 0) {
-                try {
-                    await syncOfflineData(offlineData);
-                    localStorage.removeItem(OFFLINE_DATA_KEY);
-                    showNotification('Datos offline sincronizados correctamente', 'success');
-                } catch (error) {
-                    console.error('Error al sincronizar datos offline:', error);
-                }
-            }
-        }
-
-        async function syncOfflineData(offlineData) {
-            console.log('Sincronizando datos offline:', offlineData);
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            productos.unshift(...offlineData);
-            saveProducts();
-            updateDashboard();
-        }
-
-        function showOfflineWarning() {
-            const existingWarning = document.querySelector('.offline-warning');
-            if (!existingWarning) {
-                const warning = document.createElement('div');
-                warning.className = 'offline-warning';
-                warning.innerHTML = 'Estás trabajando offline. Los cambios se sincronizarán cuando recuperes la conexión.';
-                document.body.appendChild(warning);
-            }
-        }
-
-        function startSyncInterval() {
-            setInterval(async () => {
-                if (onlineStatus) {
-                    try {
-                        await syncWithServer();
-                    } catch (error) {
-                        console.error('Error en sincronización periódica:', error);
-                    }
-                }
-            }, SYNC_INTERVAL);
-        }
-
-        async function syncWithServer() {
-            console.log('Sincronizando con el servidor...');
-            return new Promise(resolve => setTimeout(resolve, 500));
-        }
-
-        function setupBonusSystem() {
-            const savedActivation = localStorage.getItem('activationExpiry');
-            if (savedActivation) {
-                const expiryDate = new Date(savedActivation);
-                if (expiryDate > new Date()) {
-                    activatedUntil = expiryDate;
-                    createBonusCounter(true);
-                    return;
-                } else {
-                    localStorage.removeItem('activationExpiry');
-                }
-            }
-
-            const savedPoints = localStorage.getItem('bonusPoints');
-            const lastBonusDate = localStorage.getItem('lastBonusDate');
-            const now = new Date();
-
-            if (savedPoints) {
-                bonusPoints = parseInt(savedPoints);
-            }
-
-            if (lastBonusDate) {
-                const lastDate = new Date(lastBonusDate);
-                const hoursDiff = (now - lastDate) / (1000 * 60 * 60);
-                if (hoursDiff >= 24) {
-                    bonusPoints = 2;
-                    localStorage.setItem('lastBonusDate', now.toISOString());
-                    localStorage.setItem('bonusPoints', '2');
-                    showNotification('¡Has recibido 2 nuevos bonos!', 'success');
-                }
-            } else {
-                localStorage.setItem('lastBonusDate', now.toISOString());
-                bonusPoints = 2;
-                localStorage.setItem('bonusPoints', '2');
-            }
-
-            createBonusCounter();
-            checkBonusStatus();
-        }
-
-        function createBonusCounter(activated = false) {
-            const existingCounter = document.querySelector('.bonus-counter');
-            if (existingCounter) existingCounter.remove();
-
-            const counter = document.createElement('div');
-            counter.className = 'bonus-counter';
-            
-            if (activated) {
-                const daysLeft = Math.ceil((activatedUntil - new Date()) / (1000 * 60 * 60 * 24));
-                counter.innerHTML = `Activado (${daysLeft}d)`;
-                counter.title = `Plataforma activada hasta ${activatedUntil.toLocaleDateString()}`;
-            } else {
-                counter.innerHTML = `Bonificación: ${bonusPoints}`;
-                if (bonusPoints === 1) {
-                    counter.classList.add('warning');
-                } else if (bonusPoints === 0) {
-                    counter.classList.add('critical');
-                }
-            }
-
-            counter.onclick = () => bonusModal.classList.add('active');
-            document.body.appendChild(counter);
-        }
-
-        function checkBonusStatus() {
-            if (bonusPoints <= 0 && !isActivated()) {
-                showBonusModal();
-                disableForm();
-            }
-        }
-
-        function isActivated() {
-            return activatedUntil && activatedUntil > new Date();
-        }
-
-        function disableForm() {
-            form.querySelectorAll('input, textarea, select, button').forEach(element => {
-                element.disabled = true;
-            });
-            showNotification('Necesitas un código de activación para continuar', 'error');
-        }
-
-        function enableForm() {
-            form.querySelectorAll('input, textarea, select, button').forEach(element => {
-                element.disabled = false;
-            });
-        }
-
-        function showBonusModal() {
-            document.getElementById('bonusPoints').textContent = bonusPoints;
-            bonusModal.classList.add('active');
-        }
-
-        function closeBonusModal() {
-            bonusModal.classList.remove('active');
-        }
-
-        function validateActivationCode() {
-            const code = document.getElementById('activationCode').value.trim();
-            if (code === ACTIVATION_CODE) {
-                const expiryDate = new Date();
-                expiryDate.setDate(expiryDate.getDate() + BONUS_EXPIRATION_DAYS);
-                activatedUntil = expiryDate;
-                localStorage.setItem('activationExpiry', expiryDate.toISOString());
-                bonusPoints = 2;
-                localStorage.setItem('bonusPoints', '2');
-                createBonusCounter(true);
-                enableForm();
-                closeBonusModal();
-                showNotification(`Plataforma activada por ${BONUS_EXPIRATION_DAYS} días`, 'success');
-            } else {
-                showNotification('Código de activación incorrecto', 'error');
-            }
-        }
-
-        function setupTheme() {
-            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            const savedTheme = localStorage.getItem('theme');
-            
-            if (savedTheme) {
-                document.documentElement.setAttribute('data-theme', savedTheme);
-            } else if (prefersDark) {
-                document.documentElement.setAttribute('data-theme', 'dark');
-            }
-            
-            updateThemeIcon();
-            themeToggle.addEventListener('click', toggleTheme);
-        }
-
-        function toggleTheme() {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            document.documentElement.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-            updateThemeIcon();
-        }
-
-        function updateThemeIcon() {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            themeToggle.innerHTML = currentTheme === 'dark' ? '☀' : '☾';
-        }
-
-        async function registerServiceWorker() {
-            if ('serviceWorker' in navigator) {
-                try {
-                    const registration = await navigator.serviceWorker.register('service-worker.js');
-                    console.log('Service Worker registrado con éxito:', registration.scope);
-                    if ('SyncManager' in window) {
-                        registration.sync.register('sync-products');
-                    }
-                } catch (error) {
-                    console.error('Error al registrar Service Worker:', error);
-                }
-            }
-        }
-
-        function setupPWAInstallPrompt() {
-            window.addEventListener('beforeinstallprompt', (e) => {
-                e.preventDefault();
-                deferredPrompt = e;
-                console.log('PWA puede ser instalado');
-            });
-        }
-
-        function setupFormEvents() {
-            document.getElementById('incluyeGarantia').addEventListener('change', function() {
-                document.getElementById('tiempoGarantiaGroup').style.display = this.checked ? 'block' : 'none';
-            });
-
-            document.getElementById('precioProducto').addEventListener('input', calculateTotal);
-            document.getElementById('cantidadProducto').addEventListener('input', calculateTotal);
-            document.getElementById('moneda').addEventListener('change', calculateTotal);
-
-            document.querySelectorAll('.next-section').forEach(button => {
-                button.addEventListener('click', function() {
-                    const nextSection = this.dataset.next;
-                    navigateFormSection(nextSection);
-                });
-            });
-
-            document.querySelectorAll('.prev-section').forEach(button => {
-                button.addEventListener('click', function() {
-                    const prevSection = this.dataset.prev;
-                    navigateFormSection(prevSection);
-                });
-            });
-
-            form.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                if (validateForm()) {
-                    await guardarProducto();
-                }
-            });
-
-            syncButton.addEventListener('click', async () => {
-                syncButton.innerHTML = '⌛';
-                try {
-                    await syncWithServer();
-                    showNotification('Datos sincronizados correctamente', 'success');
-                } catch (error) {
-                    showNotification('Error al sincronizar datos', 'error');
-                } finally {
-                    syncButton.innerHTML = '🔄';
-                }
-            });
-        }
-
-        function navigateFormSection(sectionId) {
-            document.querySelectorAll('.form-section').forEach(section => {
-                section.classList.remove('active');
-            });
-            document.querySelector(`.form-section[data-section="${sectionId}"]`).classList.add('active');
-            form.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-
-        function validateForm() {
-            let isValid = true;
-            const requiredFields = form.querySelectorAll('[required]');
-            
-            requiredFields.forEach(field => {
-                if (!field.value.trim()) {
-                    field.classList.add('invalid');
-                    isValid = false;
-                } else {
-                    field.classList.remove('invalid');
-                }
-            });
-
-            const patternFields = form.querySelectorAll('[pattern]');
-            patternFields.forEach(field => {
-                const pattern = new RegExp(field.pattern);
-                if (!pattern.test(field.value)) {
-                    field.classList.add('invalid');
-                    isValid = false;
-                } else {
-                    field.classList.remove('invalid');
-                }
-            });
-
-            if (!isValid) {
-                showNotification('Por favor complete todos los campos requeridos correctamente', 'error');
-            }
-            return isValid;
-        }
-
-        function calculateTotal() {
-            const precio = parseFloat(document.getElementById('precioProducto').value) || 0;
-            const cantidad = parseInt(document.getElementById('cantidadProducto').value) || 1;
-            const moneda = document.getElementById('moneda').value;
-            const total = precio * cantidad;
-            const formatter = new Intl.NumberFormat('es-ES', { style: 'currency', currency: moneda });
-            document.getElementById('totalCalculado').textContent = formatter.format(total);
-        }
-
-        async function guardarProducto() {
-            const producto = {
-                cliente: {
-                    nombre: document.getElementById('nombreCliente').value,
-                    ci: document.getElementById('ciCliente').value,
-                    telefono: document.getElementById('telefonoCliente').value,
-                    direccion: document.getElementById('direccionCliente').value
-                },
-                producto: {
-                    nombre: document.getElementById('nombreProducto').value,
-                    descripcion: document.getElementById('descripcionProducto').value,
-                    origen: document.getElementById('origenProducto').value,
-                    fechaCaducidad: document.getElementById('fechaCaducidad').value,
-                    precio: parseFloat(document.getElementById('precioProducto').value),
-                    moneda: document.getElementById('moneda').value,
-                    cantidad: parseInt(document.getElementById('cantidadProducto').value),
-                    estado: document.getElementById('estadoProducto').value,
-                    incluyeDomicilio: document.getElementById('incluyeDomicilio').checked,
-                    incluyeGarantia: document.getElementById('incluyeGarantia').checked,
-                    tiempoGarantia: document.getElementById('incluyeGarantia').checked ? parseInt(document.getElementById('tiempoGarantia').value) : 0
-                },
-                fechaRegistro: new Date().toISOString(),
-                usuarioId: currentUser ? currentUser.id : 'anonimo'
-            };
-
-            if (onlineStatus) {
-                try {
-                    await saveProductToAPI(producto);
-                    productos.unshift(producto);
-                    showNotification('Producto registrado y sincronizado con el servidor', 'success');
-                } catch (error) {
-                    productos.unshift(producto);
-                    saveOfflineData(producto);
-                    showNotification('Producto guardado localmente (modo offline)', 'warning');
-                }
-            } else {
-                productos.unshift(producto);
-                saveOfflineData(producto);
-                showNotification('Producto guardado localmente (modo offline)', 'warning');
-            }
-
-            saveProducts();
-            updateDashboard();
-            limpiarFormulario();
-            prepareShareProduct(producto);
-        }
-
-        async function saveProductToAPI(producto) {
-            return new Promise((resolve, reject) => {
-                setTimeout(() => {
-                    if (Math.random() < 0.1) {
-                        reject(new Error('Error de conexión con el servidor'));
-                    } else {
-                        resolve();
-                    }
-                }, 800);
-            });
-        }
-
-        function saveOfflineData(producto) {
-            let offlineData = JSON.parse(localStorage.getItem(OFFLINE_DATA_KEY)) || [];
-            offlineData.push(producto);
-            localStorage.setItem(OFFLINE_DATA_KEY, JSON.stringify(offlineData));
-        }
-
-        function limpiarFormulario() {
-            form.reset();
-            document.getElementById('tiempoGarantiaGroup').style.display = 'none';
-            calculateTotal();
-            navigateFormSection('cliente');
-        }
-
-        function setupShareEvents() {
-            document.querySelectorAll('[data-share]').forEach(button => {
-                button.addEventListener('click', function() {
-                    const platform = this.dataset.share;
-                    shareProduct(platform);
-                });
-            });
-        }
-
-        function setupModalEvents() {
-            closeModal.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    shareModal.classList.remove('active');
-                    bonusModal.classList.remove('active');
-                    registerModal.classList.remove('active');
-                });
-            });
-
-            shareModal.addEventListener('click', (e) => {
-                if (e.target === shareModal) {
-                    shareModal.classList.remove('active');
-                }
-            });
-
-            bonusModal.addEventListener('click', (e) => {
-                if (e.target === bonusModal) {
-                    closeBonusModal();
-                }
-            });
-
-            registerModal.addEventListener('click', (e) => {
-                if (e.target === registerModal) {
-                    registerModal.classList.remove('active');
-                }
-            });
-        }
-
-        function prepareShareProduct(producto) {
-            document.getElementById('shareProductName').textContent = producto.producto.nombre;
-            document.getElementById('shareProductDesc').textContent = producto.producto.descripcion;
-            const formatter = new Intl.NumberFormat('es-ES', { style: 'currency', currency: producto.producto.moneda });
-            document.getElementById('shareProductPrice').textContent = formatter.format(producto.producto.precio);
-            sharePanel.scrollIntoView({ behavior: 'smooth' });
-            sharePanel.dataset.productIndex = 0;
-        }
-
-        function shareProduct(platform) {
-            if (!isActivated()) {
-                if (bonusPoints <= 0) {
-                    showBonusModal();
-                    return;
-                }
-                bonusPoints--;
-                localStorage.setItem('bonusPoints', bonusPoints.toString());
-                createBonusCounter();
-                checkBonusStatus();
-            }
-
-            const productIndex = sharePanel.dataset.productIndex || 0;
-            const producto = productos[productIndex];
-            
-            if (!producto) {
-                showNotification('No hay producto para compartir', 'error');
-                return;
-            }
-
-            const productName = encodeURIComponent(producto.producto.nombre);
-            const productDesc = encodeURIComponent(producto.producto.descripcion);
-            const productPrice = new Intl.NumberFormat('es-ES', { 
-                style: 'currency', 
-                currency: producto.producto.moneda 
-            }).format(producto.producto.precio);
-            
-            const textToShare = `¡Mira este producto! ${producto.producto.nombre} - ${producto.producto.descripcion} por solo ${productPrice}`;
-            const encodedText = encodeURIComponent(textToShare);
-            const url = encodeURIComponent(window.location.href);
-            
-            let shareUrl = '';
-            let modalTitle = '';
-            let modalContent = '';
-            
-            switch (platform) {
-                case 'whatsapp':
-                    shareUrl = `https://wa.me/?text=${encodedText}`;
-                    modalTitle = 'Compartir por WhatsApp';
-                    modalContent = `<p>Compartir <strong>${producto.producto.nombre}</strong> por WhatsApp.</p><a href="${shareUrl}" target="_blank" class="share-btn whatsapp">Abrir WhatsApp</a>`;
-                    break;
-                case 'telegram':
-                    shareUrl = `https://t.me/share/url?url=${url}&text=${encodedText}`;
-                    modalTitle = 'Compartir por Telegram';
-                    modalContent = `<p>Compartir <strong>${producto.producto.nombre}</strong> por Telegram.</p><a href="${shareUrl}" target="_blank" class="share-btn telegram">Abrir Telegram</a>`;
-                    break;
-                case 'messenger':
-                    shareUrl = `fb-messenger://share/?link=${url}&app_id=123456789`;
-                    modalTitle = 'Compartir por Messenger';
-                    modalContent = `<p>Compartir <strong>${producto.producto.nombre}</strong> por Facebook Messenger.</p><a href="${shareUrl}" class="share-btn messenger">Abrir Messenger</a><p>Si el enlace no funciona, abre Messenger manualmente y pega este texto:<br><textarea>${textToShare}</textarea></p>`;
-                    break;
-                case 'sms':
-                    shareUrl = `sms:?body=${encodedText}`;
-                    modalTitle = 'Compartir por SMS';
-                    modalContent = `<p>Compartir <strong>${producto.producto.nombre}</strong> por mensaje de texto.</p><a href="${shareUrl}" class="share-btn sms">Abrir aplicación de mensajes</a><p>Si el enlace no funciona, copia este texto y envíalo manualmente:<br><textarea>${textToShare}</textarea></p>`;
-                    break;
-                case 'todus':
-                    modalTitle = 'Compartir por ToDus';
-                    modalContent = `<p>Para compartir <strong>${producto.producto.nombre}</strong> por ToDus:</p><ol><li>Abre la aplicación ToDus</li><li>Pega el siguiente texto en un chat</li></ol><textarea>${textToShare}</textarea><button onclick="copyToClipboard('${textToShare.replace(/'/g, "\\'")}')" class="share-btn todus">Copiar texto</button>`;
-                    break;
-            }
-
-            document.getElementById('modalShareTitle').textContent = modalTitle;
-            document.getElementById('modalShareContent').innerHTML = modalContent;
-            shareModal.classList.add('active');
-        }
-
-        function copyToClipboard(text) {
-            navigator.clipboard.writeText(text).then(() => {
-                showNotification('Texto copiado al portapapeles', 'success');
-            }).catch(err => {
-                showNotification('Error al copiar texto', 'error');
-            });
-        }
-
-        async function loadProducts() {
-            if (onlineStatus) {
-                try {
-                    productos = await fetchProductsFromAPI();
-                    showNotification('Datos cargados desde el servidor', 'success');
-                } catch (error) {
-                    console.error('Error al cargar desde API:', error);
-                    productos = JSON.parse(localStorage.getItem('productos')) || [];
-                    showNotification('Datos cargados localmente', 'warning');
-                }
-            } else {
-                productos = JSON.parse(localStorage.getItem('productos')) || [];
-                showNotification('Modo offline: datos cargados localmente', 'warning');
-            }
-            
-            // Filtrar productos por usuario si no es administrador
-            if (currentUser && currentUser.email !== 'admin@example.com') {
-                productos = productos.filter(p => p.usuarioId === currentUser.id);
-            }
-            
-            saveProducts();
-            updateDashboard();
-        }
-
-        async function fetchProductsFromAPI() {
-            return new Promise((resolve) => {
-                setTimeout(() => {
-                    const mockProducts = [{
-                        cliente: {
-                            nombre: "Cliente Demo",
-                            ci: "12345678901",
-                            telefono: "51234567",
-                            direccion: "La Habana, Cuba"
-                        },
-                        producto: {
-                            nombre: "Producto de Ejemplo",
-                            descripcion: "Este es un producto de demostración",
-                            origen: "importado",
-                            fechaCaducidad: "2025-12-31",
-                            precio: 99.99,
-                            moneda: "CUP",
-                            cantidad: 1,
-                            estado: "nuevo",
-                            incluyeDomicilio: true,
-                            incluyeGarantia: true,
-                            tiempoGarantia: 12
-                        },
-                        fechaRegistro: new Date().toISOString(),
-                        usuarioId: currentUser ? currentUser.id : 'demo'
-                    }];
-                    resolve(mockProducts);
-                }, 1000);
-            });
-        }
-
-        function saveProducts() {
-            localStorage.setItem('productos', JSON.stringify(productos));
-            updateDashboard();
-        }
-
-        function updateDashboard() {
-            updateProductsList();
-            updateStatistics();
-        }
-
-        function updateProductsList(filter = '', statusFilter = 'all') {
-            let filteredProducts = [...productos];
-            
-            if (filter) {
-                const searchTerm = filter.toLowerCase();
-                filteredProducts = filteredProducts.filter(p =>
-                    p.producto.nombre.toLowerCase().includes(searchTerm) ||
-                    p.cliente.nombre.toLowerCase().includes(searchTerm) ||
-                    p.producto.descripcion.toLowerCase().includes(searchTerm)
-                );
-            }
-            
-            if (statusFilter !== 'all') {
-                filteredProducts = filteredProducts.filter(p =>
-                    p.producto.estado === statusFilter
-                );
-            }
-            
-            const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
-            const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-            const paginatedProducts = filteredProducts.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-            
-            productsContainer.innerHTML = '';
-            
-            if (paginatedProducts.length === 0) {
-                productsContainer.innerHTML = '<p class="no-results">No se encontraron productos</p>';
-            } else {
-                paginatedProducts.forEach((producto, index) => {
-                    const productCard = createProductCard(producto, startIndex + index);
-                    productsContainer.appendChild(productCard);
-                });
-            }
-            
-            document.getElementById('prevPage').disabled = currentPage === 1;
-            document.getElementById('nextPage').disabled = currentPage === totalPages || totalPages === 0;
-            document.getElementById('pageInfo').textContent = `Página ${currentPage} de ${totalPages}`;
-        }
-
-        function createProductCard(producto, index) {
-            const productCard = document.createElement('div');
-            productCard.className = 'product-card';
-            
-            const fechaRegistro = new Date(producto.fechaRegistro).toLocaleString();
-            const precioFormateado = new Intl.NumberFormat('es-ES', { 
-                style: 'currency', 
-                currency: producto.producto.moneda 
-            }).format(producto.producto.precio);
-            
-            productCard.innerHTML = `
-                <h3>${producto.producto.nombre}</h3>
-                <div class="product-meta">
-                    <span>${producto.cliente.nombre}</span>
-                    <span>${fechaRegistro}</span>
-                </div>
-                <div class="product-price">${precioFormateado}</div>
-                <div class="product-details">
-                    <div class="detail-item">
-                        <strong>Origen</strong>
-                        ${capitalizeFirstLetter(producto.producto.origen)}
-                    </div>
-                    <div class="detail-item">
-                        <strong>Cantidad</strong>
-                        ${producto.producto.cantidad}
-                    </div>
-                    <div class="detail-item">
-                        <strong>Estado</strong>
-                        ${capitalizeFirstLetter(producto.producto.estado)}
-                    </div>
-                    <div class="detail-item">
-                        <strong>Garantía</strong>
-                        ${producto.producto.incluyeGarantia ? `${producto.producto.tiempoGarantia} meses` : 'No incluye'}
-                    </div>
-                    <div class="detail-item">
-                        <strong>Domicilio</strong>
-                        ${producto.producto.incluyeDomicilio ? 'Sí' : 'No'}
-                    </div>
-                </div>
-                <div class="product-actions">
-                    <button onclick="prepareShareFromList(${index})" class="share-btn">Compartir</button>
-                </div>
-            `;
-            
-            return productCard;
-        }
-
-        function prepareShareFromList(index) {
-            sharePanel.dataset.productIndex = index;
-            const producto = productos[index];
-            document.getElementById('shareProductName').textContent = producto.producto.nombre;
-            document.getElementById('shareProductDesc').textContent = producto.producto.descripcion;
-            const formatter = new Intl.NumberFormat('es-ES', { style: 'currency', currency: producto.producto.moneda });
-            document.getElementById('shareProductPrice').textContent = formatter.format(producto.producto.precio);
-            sharePanel.scrollIntoView({ behavior: 'smooth' });
-        }
-
-        function updateStatistics() {
-            document.getElementById('totalProducts').textContent = productos.length;
-            
-            const totalValue = productos.reduce((sum, producto) => {
-                return sum + (producto.producto.precio * producto.producto.cantidad);
-            }, 0);
-            
-            const defaultCurrency = productos[0]?.producto.moneda || 'CUP';
-            const formatter = new Intl.NumberFormat('es-ES', { style: 'currency', currency: defaultCurrency });
-            document.getElementById('totalInventory').textContent = formatter.format(totalValue);
-            
-            const withWarranty = productos.filter(p => p.producto.incluyeGarantia).length;
-            document.getElementById('warrantyProducts').textContent = withWarranty;
-        }
-
-        function setupDashboardEvents() {
-            document.getElementById('searchProducts').addEventListener('input', function() {
-                currentPage = 1;
-                updateProductsList(this.value, document.getElementById('filterStatus').value);
-            });
-
-            document.getElementById('filterStatus').addEventListener('change', function() {
-                currentPage = 1;
-                updateProductsList(document.getElementById('searchProducts').value, this.value);
-            });
-
-            document.getElementById('prevPage').addEventListener('click', function() {
-                if (currentPage > 1) {
-                    currentPage--;
-                    updateProductsList(
-                        document.getElementById('searchProducts').value,
-                        document.getElementById('filterStatus').value
-                    );
-                }
-            });
-
-            document.getElementById('nextPage').addEventListener('click', function() {
-                const totalPages = Math.ceil(
-                    getFilteredProducts(
-                        document.getElementById('searchProducts').value,
-                        document.getElementById('filterStatus').value
-                    ).length / ITEMS_PER_PAGE
-                );
-                
-                if (currentPage < totalPages) {
-                    currentPage++;
-                    updateProductsList(
-                        document.getElementById('searchProducts').value,
-                        document.getElementById('filterStatus').value
-                    );
-                }
-            });
-
-            document.getElementById('deleteAllBtn').addEventListener('click', deleteAllProducts);
-        }
-
-        function getFilteredProducts(filter = '', statusFilter = 'all') {
-            let filteredProducts = [...productos];
-            
-            if (filter) {
-                const searchTerm = filter.toLowerCase();
-                filteredProducts = filteredProducts.filter(p =>
-                    p.producto.nombre.toLowerCase().includes(searchTerm) ||
-                    p.cliente.nombre.toLowerCase().includes(searchTerm) ||
-                    p.producto.descripcion.toLowerCase().includes(searchTerm)
-                );
-            }
-            
-            if (statusFilter !== 'all') {
-                filteredProducts = filteredProducts.filter(p =>
-                    p.producto.estado === statusFilter
-                );
-            }
-            
-            return filteredProducts;
-        }
-
-        function deleteAllProducts() {
-            if (confirm('¿Estás seguro de que deseas eliminar todos los productos registrados? Esta acción no se puede deshacer.')) {
-                productos = [];
-                localStorage.removeItem('productos');
-                updateDashboard();
-                showNotification('Todos los productos han sido eliminados', 'success');
-            }
-        }
-
-        function capitalizeFirstLetter(string) {
-            return string.charAt(0).toUpperCase() + string.slice(1);
-        }
-
-        function showNotification(message, type = 'info') {
-            const notification = document.createElement('div');
-            notification.className = `notification ${type}`;
-            notification.textContent = message;
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.classList.add('fade-out');
-                setTimeout(() => {
-                    notification.remove();
-                }, 300);
-            }, 3000);
-        }
-
-        // Funciones globales
-        window.copyToClipboard = copyToClipboard;
-        window.prepareShareFromList = prepareShareFromList;
-        window.closeBonusModal = closeBonusModal;
-        window.validateActivationCode = validateActivationCode;
-        window.deleteAllProducts = deleteAllProducts;
-    </script>
+<div id="loginScreen" class="login-container">
+<h2 class="login-title">Iniciar Sesión</h2>
+<form id="loginForm" class="login-form">
+<div class="form-group">
+<label for="loginEmail">Correo Electrónico</label>
+<input type="email" id="loginEmail" required>
+</div>
+<div class="form-group">
+<label for="loginPassword">Contraseña</label>
+<input type="password" id="loginPassword" required>
+</div>
+<button type="submit" class="login-btn">Ingresar</button>
+<div class="form-group" style="text-align:center;margin-top:15px;">
+<a href="#" id="registerLink">Registrar nueva cuenta</a>
+</div>
+</form>
+</div>
+<div id="appContainer" class="container" style="display:none;">
+<header>
+<h1>Registro de Productos</h1>
+<div class="header-controls">
+<button id="themeToggle" aria-label="Cambiar tema"></button>
+<button id="syncButton" aria-label="Sincronizar datos"></button>
+<button id="logoutButton" aria-label="Cerrar sesión">👤</button>
+</div>
+</header>
+<div class="connection-status" id="connectionStatus"></div>
+<form id="productForm" class="needs-validation" novalidate>
+<div class="form-sections">
+<section class="form-section active" data-section="cliente">
+<fieldset>
+<legend>Datos del Cliente</legend>
+<div class="form-group">
+<label for="nombreCliente">Nombre y Apellidos*</label>
+<input type="text" id="nombreCliente" required pattern="[A-Za-záéíóúñÁÉÍÓÚÑ\s]{3,}">
+<div class="invalid-feedback">Ingrese nombre y apellidos válidos</div>
+</div>
+<div class="form-row">
+<div class="form-group">
+<label for="ciCliente">Carnet de Identidad*</label>
+<input type="text" id="ciCliente" required pattern="[0-9]{11}">
+<div class="invalid-feedback">CI debe contener 11 dígitos</div>
+</div>
+<div class="form-group">
+<label for="telefonoCliente">Teléfono*</label>
+<input type="tel" id="telefonoCliente" required pattern="(5|7)[0-9]{7}">
+<div class="invalid-feedback">Teléfono móvil cubano inválido (ej: 51234567)</div>
+</div>
+</div>
+<div class="form-group">
+<label for="direccionCliente">Dirección (Provincia y Municipio)*</label>
+<textarea id="direccionCliente" rows="2" required minlength="10"></textarea>
+<div class="invalid-feedback">Indique provincia y municipio</div>
+</div>
+<div class="form-navigation">
+<button type="button" class="next-section" data-next="producto">Siguiente</button>
+</div>
+</fieldset>
+</section>
+<section class="form-section" data-section="producto">
+<fieldset>
+<legend>Datos del Producto</legend>
+<div class="form-group">
+<label for="nombreProducto">Nombre del Producto*</label>
+<input type="text" id="nombreProducto" required>
+<div class="invalid-feedback">Campo obligatorio</div>
+</div>
+<div class="form-row">
+<div class="form-group">
+<label for="origenProducto">Origen*</label>
+<select id="origenProducto" required>
+<option value="">Seleccione...</option>
+<option value="nacional">Nacional</option>
+<option value="importado">Importado</option>
+<option value="misiones">Misiones</option>
+</select>
+</div>
+<div class="form-group">
+<label for="estadoProducto">Estado*</label>
+<select id="estadoProducto" required>
+<option value="">Seleccione...</option>
+<option value="nuevo">Nuevo</option>
+<option value="usado">Usado</option>
+<option value="reparado">Reparado</option>
+</select>
+</div>
+</div>
+<div class="form-group">
+<label for="descripcionProducto">Descripción*</label>
+<textarea id="descripcionProducto" rows="3" required></textarea>
+</div>
+<div class="form-row">
+<div class="form-group">
+<label for="fechaCaducidad">Fecha de Caducidad</label>
+<input type="date" id="fechaCaducidad" min="${new Date().toISOString().split('T')[0]}">
+</div>
+<div class="form-group">
+<label for="cantidadProducto">Cantidad*</label>
+<input type="number" id="cantidadProducto" min="1" value="1" required>
+</div>
+</div>
+<div class="form-row">
+<div class="form-group">
+<label for="precioProducto">Precio*</label>
+<div class="input-group">
+<select id="moneda" required>
+<option value="CUP">CUP</option>
+<option value="MLC">MLC</option>
+<option value="USD">USD</option>
+</select>
+<input type="number" id="precioProducto" step="1" min="0" required>
+</div>
+</div>
+<div class="form-group">
+<label>Total</label>
+<div class="calculated-value" id="totalCalculado">$0.00 CUP</div>
+</div>
+</div>
+<div class="form-checkboxes">
+<div class="checkbox-group">
+<input type="checkbox" id="incluyeDomicilio">
+<label for="incluyeDomicilio">Incluye entrega</label>
+</div>
+<div class="checkbox-group">
+<input type="checkbox" id="incluyeGarantia">
+<label for="incluyeGarantia">Incluye garantía</label>
+</div>
+</div>
+<div class="form-group" id="tiempoGarantiaGroup" style="display:none;">
+<label for="tiempoGarantia">Tiempo de Garantía (meses)</label>
+<input type="number" id="tiempoGarantia" min="1" value="12">
+</div>
+<div class="form-navigation">
+<button type="button" class="prev-section" data-prev="cliente">Anterior</button>
+<button type="submit" id="btnGuardar">Guardar Producto</button>
+</div>
+</fieldset>
+</section>
+</div>
+</form>
+<div class="share-panel" id="sharePanel">
+<h2>Compartir Producto</h2>
+<div class="share-options">
+<button class="share-option whatsapp" data-share="whatsapp">WhatsApp</button>
+<button class="share-option telegram" data-share="telegram">Telegram</button>
+<button class="share-option messenger" data-share="messenger">Messenger</button>
+<button class="share-option sms" data-share="sms">SMS</button>
+<button class="share-option todus" data-share="todus">ToDus</button>
+</div>
+<div class="share-preview" id="sharePreview">
+<h3 id="shareProductName">Nombre del Producto</h3>
+<p id="shareProductDesc">Descripción del producto</p>
+<div class="share-price" id="shareProductPrice">$0.00</div>
+</div>
+</div>
+<div class="product-dashboard">
+<div class="dashboard-header">
+<h2>Productos Registrados</h2>
+<div class="dashboard-controls">
+<input type="text" id="searchProducts" placeholder="Buscar productos...">
+<select id="filterStatus">
+<option value="all">Todos</option>
+<option value="nuevo">Nuevos</option>
+<option value="usado">Usados</option>
+<option value="reparado">Reparados</option>
+</select>
+<div class="export-options">
+<button id="exportCSV" class="export-btn">Exportar CSV</button>
+<button id="exportPDF" class="export-btn">Exportar PDF</button>
+</div>
+<button id="deleteAllBtn" class="danger-btn">Eliminar Todos</button>
+</div>
+</div>
+<div class="stats-row">
+<div class="stat-card">
+<div class="stat-value" id="totalProducts">0</div>
+<div class="stat-label">Total Productos</div>
+</div>
+<div class="stat-card">
+<div class="stat-value" id="totalInventory">$0.00</div>
+<div class="stat-label">Valor Total</div>
+</div>
+<div class="stat-card">
+<div class="stat-value" id="warrantyProducts">0</div>
+<div class="stat-label">Con Garantía</div>
+</div>
+</div>
+<div id="productsContainer" class="products-grid"></div>
+<div class="pagination">
+<button id="prevPage" disabled>‹</button>
+<span id="pageInfo">Página 1 de 1</span>
+<button id="nextPage" disabled>›</button>
+</div>
+</div>
+</div>
+<div class="modal" id="shareModal">
+<div class="modal-content">
+<span class="close-modal">×</span>
+<h3 id="modalShareTitle">Compartir producto</h3>
+<div id="modalShareContent">
+<p>Preparando enlace para compartir...</p>
+</div>
+</div>
+</div>
+<div class="modal" id="bonusModal">
+<div class="modal-content">
+<span class="close-modal">×</span>
+<h3>Sistema de Bonificación</h3>
+<div id="bonusInfo">
+<p>Te ofrecemos: <span id="bonusPoints">(2)</span> puntos de bono.</p>
+<p>Cuando se agoten, deberás esperar aproximadamente 24 horas para recibir 2 nuevo bonos gratis.</p>
+<p>Si necesitas a tiempo completo la plataforma puedes ingresar el código de activación, si deseas uno contacta al +5350369270.</p>
+</div>
+<div class="form-group">
+<label for="activationCode">Código de Activación</label>
+<input type="text" id="activationCode" placeholder="Ingresa el código">
+</div>
+<button onclick="validateActivationCode()">Activar</button>
+</div>
+</div>
+<div class="modal" id="registerModal">
+<div class="modal-content">
+<span class="close-modal">×</span>
+<h3>Registrar Nueva Cuenta</h3>
+<form id="registerForm">
+<div class="form-group">
+<label for="registerName">Nombre Completo</label>
+<input type="text" id="registerName" required>
+</div>
+<div class="form-group">
+<label for="registerEmail">Correo Electrónico</label>
+<input type="email" id="registerEmail" required>
+</div>
+<div class="form-group">
+<label for="registerPassword">Contraseña</label>
+<input type="password" id="registerPassword" required>
+</div>
+<div class="form-group">
+<label for="registerConfirmPassword">Confirmar Contraseña</label>
+<input type="password" id="registerConfirmPassword" required>
+</div>
+<button type="submit" class="login-btn">Registrar</button>
+</form>
+</div>
+</div>
+<script>
+const API_URL='https://api.example.com/products';
+const CACHE_NAME='productos-cache-v2';
+const OFFLINE_DATA_KEY='offline-products';
+const SYNC_INTERVAL=300000;
+const ACTIVATION_CODE="GF+30";
+const BONUS_EXPIRATION_DAYS=30;
+const ITEMS_PER_PAGE=6;
+let productos=[];
+let currentPage=1;
+let onlineStatus=navigator.onLine;
+let deferredPrompt=null;
+let bonusPoints=2;
+let activatedUntil=null;
+let currentUser=null;
+const loginScreen=document.getElementById('loginScreen');
+const appContainer=document.getElementById('appContainer');
+const loginForm=document.getElementById('loginForm');
+const registerLink=document.getElementById('registerLink');
+const logoutButton=document.getElementById('logoutButton');
+const registerModal=document.getElementById('registerModal');
+const registerForm=document.getElementById('registerForm');
+const form=document.getElementById('productForm');
+const productsContainer=document.getElementById('productsContainer');
+const connectionStatus=document.getElementById('connectionStatus');
+const themeToggle=document.getElementById('themeToggle');
+const syncButton=document.getElementById('syncButton');
+const sharePanel=document.getElementById('sharePanel');
+const shareModal=document.getElementById('shareModal');
+const closeModal=document.querySelectorAll('.close-modal');
+const bonusModal=document.getElementById('bonusModal');
+const exportCSV=document.getElementById('exportCSV');
+const exportPDF=document.getElementById('exportPDF');
+document.addEventListener('DOMContentLoaded',initApp);
+async function initApp(){
+setupTheme();
+setupConnectivity();
+registerServiceWorker();
+setupBonusSystem();
+setupLoginSystem();
+setupFormEvents();
+setupShareEvents();
+setupDashboardEvents();
+setupModalEvents();
+startSyncInterval();
+setupPWAInstallPrompt();
+setupExportButtons();
+const savedUser=localStorage.getItem('currentUser');
+if(savedUser){
+currentUser=JSON.parse(savedUser);
+showApp();
+await loadProducts();
+}else{
+showLogin();
+}}
+function showLogin(){
+loginScreen.style.display='block';
+appContainer.style.display='none';}
+function showApp(){
+loginScreen.style.display='none';
+appContainer.style.display='block';
+updateDashboard();}
+function setupLoginSystem(){
+loginForm.addEventListener('submit',async function(e){
+e.preventDefault();
+const email=document.getElementById('loginEmail').value;
+const password=document.getElementById('loginPassword').value;
+try{
+currentUser=await authenticateUser(email,password);
+localStorage.setItem('currentUser',JSON.stringify(currentUser));
+showApp();
+await loadProducts();
+showNotification('Sesión iniciada correctamente','success');
+}catch(error){
+showNotification('Credenciales incorrectas','error');}});
+registerLink.addEventListener('click',function(e){
+e.preventDefault();
+registerModal.classList.add('active');});
+registerForm.addEventListener('submit',function(e){
+e.preventDefault();
+const name=document.getElementById('registerName').value;
+const email=document.getElementById('registerEmail').value;
+const password=document.getElementById('registerPassword').value;
+const confirmPassword=document.getElementById('registerConfirmPassword').value;
+if(password!==confirmPassword){
+showNotification('Las contraseñas no coinciden','error');
+return;}
+currentUser={
+id:Date.now().toString(),
+name:name,
+email:email};
+localStorage.setItem('currentUser',JSON.stringify(currentUser));
+registerModal.classList.remove('active');
+showApp();
+loadProducts();
+showNotification('Cuenta creada correctamente','success');});
+logoutButton.addEventListener('click',function(){
+currentUser=null;
+localStorage.removeItem('currentUser');
+showLogin();
+showNotification('Sesión cerrada','info');});}
+function authenticateUser(email,password){
+return new Promise((resolve,reject)=>{
+setTimeout(()=>{
+if(email&&password){
+resolve({
+id:'user-'+Date.now(),
+name:email.split('@')[0],
+email:email});
+}else{
+reject(new Error('Credenciales inválidas'));}},500);});}
+function setupExportButtons(){
+exportCSV.addEventListener('click',exportToCSV);
+exportPDF.addEventListener('click',exportToPDF);}
+function exportToCSV(){
+if(productos.length===0){
+showNotification('No hay productos para exportar','warning');
+return;}
+let csvContent="data:text/csv;charset=utf-8,";
+csvContent+="Nombre Producto,Descripción,Precio,Cantidad,Cliente,Teléfono\n";
+productos.forEach(producto=>{
+const row=[
+`"${producto.producto.nombre}"`,
+`"${producto.producto.descripcion}"`,
+producto.producto.precio,
+producto.producto.cantidad,
+`"${producto.cliente.nombre}"`,
+producto.cliente.telefono].join(",");
+csvContent+=row+"\n";});
+const encodedUri=encodeURI(csvContent);
+const link=document.createElement("a");
+link.setAttribute("href",encodedUri);
+link.setAttribute("download","productos.csv");
+document.body.appendChild(link);
+link.click();
+document.body.removeChild(link);
+showNotification('Exportación a CSV completada','success');}
+function exportToPDF(){
+if(productos.length===0){
+showNotification('No hay productos para exportar','warning');
+return;}
+showNotification('Preparando documento PDF...','info');
+setTimeout(()=>{
+showNotification('Exportación a PDF completada (simulación)','success');},1500);}
+function setupConnectivity(){
+updateOnlineStatus();
+window.addEventListener('online',updateOnlineStatus);
+window.addEventListener('offline',updateOnlineStatus);}
+async function checkInternetConnection(){
+try{
+await fetch('https://www.google.com/favicon.ico',{
+method:'HEAD',
+mode:'no-cors',
+cache:'no-cache'});
+return true;
+}catch(error){
+return false;}}
+async function updateOnlineStatus(){
+const wasOnline=onlineStatus;
+onlineStatus=await checkInternetConnection();
+if(onlineStatus!==wasOnline){
+if(onlineStatus){
+connectionStatus.innerHTML='<span>Conectado</span>';
+connectionStatus.className='connection-status';
+await checkOfflineData();
+showNotification('Conexión a Internet restablecida','success');
+}else{
+connectionStatus.innerHTML='<span>Offline</span>';
+connectionStatus.className='connection-status offline';
+showOfflineWarning();
+showNotification('Sin conexión a Internet. Trabajando en modo offline.','warning');}}}
+async function checkOfflineData(){
+const offlineData=JSON.parse(localStorage.getItem(OFFLINE_DATA_KEY))||[];
+if(offlineData.length>0){
+try{
+await syncOfflineData(offlineData);
+localStorage.removeItem(OFFLINE_DATA_KEY);
+showNotification('Datos offline sincronizados correctamente','success');
+}catch(error){
+console.error('Error al sincronizar datos offline:',error);}}}
+async function syncOfflineData(offlineData){
+console.log('Sincronizando datos offline:',offlineData);
+await new Promise(resolve=>setTimeout(resolve,1000));
+productos.unshift(...offlineData);
+saveProducts();
+updateDashboard();}
+function showOfflineWarning(){
+const existingWarning=document.querySelector('.offline-warning');
+if(!existingWarning){
+const warning=document.createElement('div');
+warning.className='offline-warning';
+warning.innerHTML='Estás trabajando offline. Los cambios se sincronizarán cuando recuperes la conexión.';
+document.body.appendChild(warning);}}
+function startSyncInterval(){
+setInterval(async()=>{
+if(onlineStatus){
+try{
+await syncWithServer();
+}catch(error){
+console.error('Error en sincronización periódica:',error);}}},SYNC_INTERVAL);}
+async function syncWithServer(){
+console.log('Sincronizando con el servidor...');
+return new Promise(resolve=>setTimeout(resolve,500));}
+function setupBonusSystem(){
+const savedActivation=localStorage.getItem('activationExpiry');
+if(savedActivation){
+const expiryDate=new Date(savedActivation);
+if(expiryDate>new Date()){
+activatedUntil=expiryDate;
+createBonusCounter(true);
+return;
+}else{
+localStorage.removeItem('activationExpiry');}}
+const savedPoints=localStorage.getItem('bonusPoints');
+const lastBonusDate=localStorage.getItem('lastBonusDate');
+const now=new Date();
+if(savedPoints){
+bonusPoints=parseInt(savedPoints);}
+if(lastBonusDate){
+const lastDate=new Date(lastBonusDate);
+const hoursDiff=(now-lastDate)/(1000*60*60);
+if(hoursDiff>=24){
+bonusPoints=2;
+localStorage.setItem('lastBonusDate',now.toISOString());
+localStorage.setItem('bonusPoints','2');
+showNotification('¡Has recibido 2 nuevos bonos!','success');}}else{
+localStorage.setItem('lastBonusDate',now.toISOString());
+bonusPoints=2;
+localStorage.setItem('bonusPoints','2');}
+createBonusCounter();
+checkBonusStatus();}
+function createBonusCounter(activated=false){
+const existingCounter=document.querySelector('.bonus-counter');
+if(existingCounter)existingCounter.remove();
+const counter=document.createElement('div');
+counter.className='bonus-counter';
+if(activated){
+const daysLeft=Math.ceil((activatedUntil-new Date())/(1000*60*60*24));
+counter.innerHTML=`Activado (${daysLeft}d)`;
+counter.title=`Plataforma activada hasta ${activatedUntil.toLocaleDateString()}`;
+}else{
+counter.innerHTML=`Bonificación: ${bonusPoints}`;
+if(bonusPoints===1){
+counter.classList.add('warning');
+}else if(bonusPoints===0){
+counter.classList.add('critical');}}
+counter.onclick=()=>bonusModal.classList.add('active');
+document.body.appendChild(counter);}
+function checkBonusStatus(){
+if(bonusPoints<=0&&!isActivated()){
+showBonusModal();
+disableForm();}}
+function isActivated(){
+return activatedUntil&&activatedUntil>new Date();}
+function disableForm(){
+form.querySelectorAll('input, textarea, select, button').forEach(element=>{
+element.disabled=true;});
+showNotification('Necesitas un código de activación para continuar','error');}
+function enableForm(){
+form.querySelectorAll('input, textarea, select, button').forEach(element=>{
+element.disabled=false;});}
+function showBonusModal(){
+document.getElementById('bonusPoints').textContent=bonusPoints;
+bonusModal.classList.add('active');}
+function closeBonusModal(){
+bonusModal.classList.remove('active');}
+function validateActivationCode(){
+const code=document.getElementById('activationCode').value.trim();
+if(code===ACTIVATION_CODE){
+const expiryDate=new Date();
+expiryDate.setDate(expiryDate.getDate()+BONUS_EXPIRATION_DAYS);
+activatedUntil=expiryDate;
+localStorage.setItem('activationExpiry',expiryDate.toISOString());
+bonusPoints=2;
+localStorage.setItem('bonusPoints','2');
+createBonusCounter(true);
+enableForm();
+closeBonusModal();
+showNotification(`Plataforma activada por ${BONUS_EXPIRATION_DAYS} días`,'success');
+}else{
+showNotification('Código de activación incorrecto','error');}}
+function setupTheme(){
+const prefersDark=window.matchMedia('(prefers-color-scheme: dark)').matches;
+const savedTheme=localStorage.getItem('theme');
+if(savedTheme){
+document.documentElement.setAttribute('data-theme',savedTheme);
+}else if(prefersDark){
+document.documentElement.setAttribute('data-theme','dark');}
+updateThemeIcon();
+themeToggle.addEventListener('click',toggleTheme);}
+function toggleTheme(){
+const currentTheme=document.documentElement.getAttribute('data-theme');
+const newTheme=currentTheme==='dark'?'light':'dark';
+document.documentElement.setAttribute('data-theme',newTheme);
+localStorage.setItem('theme',newTheme);
+updateThemeIcon();}
+function updateThemeIcon(){
+const currentTheme=document.documentElement.getAttribute('data-theme');
+themeToggle.innerHTML=currentTheme==='dark'?'☀':'☾';}
+async function registerServiceWorker(){
+if('serviceWorker'in navigator){
+try{
+const registration=await navigator.serviceWorker.register('service-worker.js');
+console.log('Service Worker registrado con éxito:',registration.scope);
+if('SyncManager'in window){
+registration.sync.register('sync-products');}}catch(error){
+console.error('Error al registrar Service Worker:',error);}}}
+function setupPWAInstallPrompt(){
+window.addEventListener('beforeinstallprompt',(e)=>{
+e.preventDefault();
+deferredPrompt=e;
+console.log('PWA puede ser instalado');});}
+function setupFormEvents(){
+document.getElementById('incluyeGarantia').addEventListener('change',function(){
+document.getElementById('tiempoGarantiaGroup').style.display=this.checked?'block':'none';});
+document.getElementById('precioProducto').addEventListener('input',calculateTotal);
+document.getElementById('cantidadProducto').addEventListener('input',calculateTotal);
+document.getElementById('moneda').addEventListener('change',calculateTotal);
+document.querySelectorAll('.next-section').forEach(button=>{
+button.addEventListener('click',function(){
+const nextSection=this.dataset.next;
+navigateFormSection(nextSection);});});
+document.querySelectorAll('.prev-section').forEach(button=>{
+button.addEventListener('click',function(){
+const prevSection=this.dataset.prev;
+navigateFormSection(prevSection);});});
+form.addEventListener('submit',async function(e){
+e.preventDefault();
+if(validateForm()){
+await guardarProducto();}});
+syncButton.addEventListener('click',async()=>{
+syncButton.innerHTML='⌛';
+try{
+await syncWithServer();
+showNotification('Datos sincronizados correctamente','success');
+}catch(error){
+showNotification('Error al sincronizar datos','error');
+}finally{
+syncButton.innerHTML='🔄';}});}
+function navigateFormSection(sectionId){
+document.querySelectorAll('.form-section').forEach(section=>{
+section.classList.remove('active');});
+document.querySelector(`.form-section[data-section="${sectionId}"]`).classList.add('active');
+form.scrollIntoView({behavior:'smooth',block:'start'});}
+function validateForm(){
+let isValid=true;
+const requiredFields=form.querySelectorAll('[required]');
+requiredFields.forEach(field=>{
+if(!field.value.trim()){
+field.classList.add('invalid');
+isValid=false;
+}else{
+field.classList.remove('invalid');}});
+const patternFields=form.querySelectorAll('[pattern]');
+patternFields.forEach(field=>{
+const pattern=new RegExp(field.pattern);
+if(!pattern.test(field.value)){
+field.classList.add('invalid');
+isValid=false;
+}else{
+field.classList.remove('invalid');}});
+if(!isValid){
+showNotification('Por favor complete todos los campos requeridos correctamente','error');}
+return isValid;}
+function calculateTotal(){
+const precio=parseFloat(document.getElementById('precioProducto').value)||0;
+const cantidad=parseInt(document.getElementById('cantidadProducto').value)||1;
+const moneda=document.getElementById('moneda').value;
+const total=precio*cantidad;
+const formatter=new Intl.NumberFormat('es-ES',{style:'currency',currency:moneda});
+document.getElementById('totalCalculado').textContent=formatter.format(total);}
+async function guardarProducto(){
+const producto={
+cliente:{
+nombre:document.getElementById('nombreCliente').value,
+ci:document.getElementById('ciCliente').value,
+telefono:document.getElementById('telefonoCliente').value,
+direccion:document.getElementById('direccionCliente').value},
+producto:{
+nombre:document.getElementById('nombreProducto').value,
+descripcion:document.getElementById('descripcionProducto').value,
+origen:document.getElementById('origenProducto').value,
+fechaCaducidad:document.getElementById('fechaCaducidad').value,
+precio:parseFloat(document.getElementById('precioProducto').value),
+moneda:document.getElementById('moneda').value,
+cantidad:parseInt(document.getElementById('cantidadProducto').value),
+estado:document.getElementById('estadoProducto').value,
+incluyeDomicilio:document.getElementById('incluyeDomicilio').checked,
+incluyeGarantia:document.getElementById('incluyeGarantia').checked,
+tiempoGarantia:document.getElementById('incluyeGarantia').checked?parseInt(document.getElementById('tiempoGarantia').value):0},
+fechaRegistro:new Date().toISOString(),
+usuarioId:currentUser?currentUser.id:'anonimo'};
+if(onlineStatus){
+try{
+await saveProductToAPI(producto);
+productos.unshift(producto);
+showNotification('Producto registrado y sincronizado con el servidor','success');
+}catch(error){
+productos.unshift(producto);
+saveOfflineData(producto);
+showNotification('Producto guardado localmente (modo offline)','warning');}}else{
+productos.unshift(producto);
+saveOfflineData(producto);
+showNotification('Producto guardado localmente (modo offline)','warning');}
+saveProducts();
+updateDashboard();
+limpiarFormulario();
+prepareShareProduct(producto);}
+async function saveProductToAPI(producto){
+return new Promise((resolve,reject)=>{
+setTimeout(()=>{
+if(Math.random()<0.1){
+reject(new Error('Error de conexión con el servidor'));
+}else{
+resolve();}},800);});}
+function saveOfflineData(producto){
+let offlineData=JSON.parse(localStorage.getItem(OFFLINE_DATA_KEY))||[];
+offlineData.push(producto);
+localStorage.setItem(OFFLINE_DATA_KEY,JSON.stringify(offlineData));}
+function limpiarFormulario(){
+form.reset();
+document.getElementById('tiempoGarantiaGroup').style.display='none';
+calculateTotal();
+navigateFormSection('cliente');}
+function setupShareEvents(){
+document.querySelectorAll('[data-share]').forEach(button=>{
+button.addEventListener('click',function(){
+const platform=this.dataset.share;
+shareProduct(platform);});});}
+function setupModalEvents(){
+closeModal.forEach(btn=>{
+btn.addEventListener('click',()=>{
+shareModal.classList.remove('active');
+bonusModal.classList.remove('active');
+registerModal.classList.remove('active');});});
+shareModal.addEventListener('click',(e)=>{
+if(e.target===shareModal){
+shareModal.classList.remove('active');}});
+bonusModal.addEventListener('click',(e)=>{
+if(e.target===bonusModal){
+closeBonusModal();}});
+registerModal.addEventListener('click',(e)=>{
+if(e.target===registerModal){
+registerModal.classList.remove('active');}});}
+function prepareShareProduct(producto){
+document.getElementById('shareProductName').textContent=producto.producto.nombre;
+document.getElementById('shareProductDesc').textContent=producto.producto.descripcion;
+const formatter=new Intl.NumberFormat('es-ES',{style:'currency',currency:producto.producto.moneda});
+document.getElementById('shareProductPrice').textContent=formatter.format(producto.producto.precio);
+sharePanel.scrollIntoView({behavior:'smooth'});
+sharePanel.dataset.productIndex=0;}
+function shareProduct(platform){
+if(!isActivated()){
+if(bonusPoints<=0){
+showBonusModal();
+return;}
+bonusPoints--;
+localStorage.setItem('bonusPoints',bonusPoints.toString());
+createBonusCounter();
+checkBonusStatus();}
+const productIndex=sharePanel.dataset.productIndex||0;
+const producto=productos[productIndex];
+if(!producto){
+showNotification('No hay producto para compartir','error');
+return;}
+const productName=encodeURIComponent(producto.producto.nombre);
+const productDesc=encodeURIComponent(producto.producto.descripcion);
+const productPrice=new Intl.NumberFormat('es-ES',{style:'currency',currency:producto.producto.moneda}).format(producto.producto.precio);
+const textToShare=`¡Mira este producto! ${producto.producto.nombre} - ${producto.producto.descripcion} por solo ${productPrice}`;
+const encodedText=encodeURIComponent(textToShare);
+const url=encodeURIComponent(window.location.href);
+let shareUrl='';
+let modalTitle='';
+let modalContent='';
+switch(platform){
+case'whatsapp':
+shareUrl=`https://wa.me/?text=${encodedText}`;
+modalTitle='Compartir por WhatsApp';
+modalContent=`<p>Compartir <strong>${producto.producto.nombre}</strong> por WhatsApp.</p><a href="${shareUrl}" target="_blank" class="share-btn whatsapp">Abrir WhatsApp</a>`;
+break;
+case'telegram':
+shareUrl=`https://t.me/share/url?url=${url}&text=${encodedText}`;
+modalTitle='Compartir por Telegram';
+modalContent=`<p>Compartir <strong>${producto.producto.nombre}</strong> por Telegram.</p><a href="${shareUrl}" target="_blank" class="share-btn telegram">Abrir Telegram</a>`;
+break;
+case'messenger':
+shareUrl=`fb-messenger://share/?link=${url}&app_id=123456789`;
+modalTitle='Compartir por Messenger';
+modalContent=`<p>Compartir <strong>${producto.producto.nombre}</strong> por Facebook Messenger.</p><a href="${shareUrl}" class="share-btn messenger">Abrir Messenger</a><p>Si el enlace no funciona, abre Messenger manualmente y pega este texto:<br><textarea>${textToShare}</textarea></p>`;
+break;
+case'sms':
+shareUrl=`sms:?body=${encodedText}`;
+modalTitle='Compartir por SMS';
+modalContent=`<p>Compartir <strong>${producto.producto.nombre}</strong> por mensaje de texto.</p><a href="${shareUrl}" class="share-btn sms">Abrir aplicación de mensajes</a><p>Si el enlace no funciona, copia este texto y envíalo manualmente:<br><textarea>${textToShare}</textarea></p>`;
+break;
+case'todus':
+modalTitle='Compartir por ToDus';
+modalContent=`<p>Para compartir <strong>${producto.producto.nombre}</strong> por ToDus:</p><ol><li>Abre la aplicación ToDus</li><li>Pega el siguiente texto en un chat</li></ol><textarea>${textToShare}</textarea><button onclick="copyToClipboard('${textToShare.replace(/'/g,"\\'")}')" class="share-btn todus">Copiar texto</button>`;
+break;}
+document.getElementById('modalShareTitle').textContent=modalTitle;
+document.getElementById('modalShareContent').innerHTML=modalContent;
+shareModal.classList.add('active');}
+function copyToClipboard(text){
+navigator.clipboard.writeText(text).then(()=>{
+showNotification('Texto copiado al portapapeles','success');}).catch(err=>{
+showNotification('Error al copiar texto','error');});}
+async function loadProducts(){
+if(onlineStatus){
+try{
+productos=await fetchProductsFromAPI();
+showNotification('Datos cargados desde el servidor','success');
+}catch(error){
+console.error('Error al cargar desde API:',error);
+productos=JSON.parse(localStorage.getItem('productos'))||[];
+showNotification('Datos cargados localmente','warning');}}else{
+productos=JSON.parse(localStorage.getItem('productos'))||[];
+showNotification('Modo offline: datos cargados localmente','warning');}
+if(currentUser&&currentUser.email!=='admin@example.com'){
+productos=productos.filter(p=>p.usuarioId===currentUser.id);}
+saveProducts();
+updateDashboard();}
+async function fetchProductsFromAPI(){
+return new Promise((resolve)=>{
+setTimeout(()=>{
+const mockProducts=[{
+cliente:{
+nombre:"Cliente Demo",
+ci:"12345678901",
+telefono:"51234567",
+direccion:"La Habana, Cuba"},
+producto:{
+nombre:"Producto de Ejemplo",
+descripcion:"Este es un producto de demostración",
+origen:"importado",
+fechaCaducidad:"2025-12-31",
+precio:99.99,
+moneda:"CUP",
+cantidad:1,
+estado:"nuevo",
+incluyeDomicilio:true,
+incluyeGarantia:true,
+tiempoGarantia:12},
+fechaRegistro:new Date().toISOString(),
+usuarioId:currentUser?currentUser.id:'demo'}];
+resolve(mockProducts);},1000);});}
+function saveProducts(){
+localStorage.setItem('productos',JSON.stringify(productos));
+updateDashboard();}
+function updateDashboard(){
+updateProductsList();
+updateStatistics();}
+function updateProductsList(filter='',statusFilter='all'){
+let filteredProducts=[...productos];
+if(filter){
+const searchTerm=filter.toLowerCase();
+filteredProducts=filteredProducts.filter(p=>
+p.producto.nombre.toLowerCase().includes(searchTerm)||
+p.cliente.nombre.toLowerCase().includes(searchTerm)||
+p.producto.descripcion.toLowerCase().includes(searchTerm));}
+if(statusFilter!=='all'){
+filteredProducts=filteredProducts.filter(p=>
+p.producto.estado===statusFilter);}
+const totalPages=Math.ceil(filteredProducts.length/ITEMS_PER_PAGE);
+const startIndex=(currentPage-1)*ITEMS_PER_PAGE;
+const paginatedProducts=filteredProducts.slice(startIndex,startIndex+ITEMS_PER_PAGE);
+productsContainer.innerHTML='';
+if(paginatedProducts.length===0){
+productsContainer.innerHTML='<p class="no-results">No se encontraron productos</p>';
+}else{
+paginatedProducts.forEach((producto,index)=>{
+const productCard=createProductCard(producto,startIndex+index);
+productsContainer.appendChild(productCard);});}
+document.getElementById('prevPage').disabled=currentPage===1;
+document.getElementById('nextPage').disabled=currentPage===totalPages||totalPages===0;
+document.getElementById('pageInfo').textContent=`Página ${currentPage} de ${totalPages}`;}
+function createProductCard(producto,index){
+const productCard=document.createElement('div');
+productCard.className='product-card';
+const fechaRegistro=new Date(producto.fechaRegistro).toLocaleString();
+const precioFormateado=new Intl.NumberFormat('es-ES',{style:'currency',currency:producto.producto.moneda}).format(producto.producto.precio);
+productCard.innerHTML=`
+<h3>${producto.producto.nombre}</h3>
+<div class="product-meta">
+<span>${producto.cliente.nombre}</span>
+<span>${fechaRegistro}</span>
+</div>
+<div class="product-price">${precioFormateado}</div>
+<div class="product-details">
+<div class="detail-item">
+<strong>Origen</strong>
+${capitalizeFirstLetter(producto.producto.origen)}
+</div>
+<div class="detail-item">
+<strong>Cantidad</strong>
+${producto.producto.cantidad}
+</div>
+<div class="detail-item">
+<strong>Estado</strong>
+${capitalizeFirstLetter(producto.producto.estado)}
+</div>
+<div class="detail-item">
+<strong>Garantía</strong>
+${producto.producto.incluyeGarantia?`${producto.producto.tiempoGarantia} meses`:'No incluye'}
+</div>
+<div class="detail-item">
+<strong>Domicilio</strong>
+${producto.producto.incluyeDomicilio?'Sí':'No'}
+</div>
+</div>
+<div class="product-actions">
+<button onclick="prepareShareFromList(${index})" class="share-btn">Compartir</button>
+</div>
+`;
+return productCard;}
+function prepareShareFromList(index){
+sharePanel.dataset.productIndex=index;
+const producto=productos[index];
+document.getElementById('shareProductName').textContent=producto.producto.nombre;
+document.getElementById('shareProductDesc').textContent=producto.producto.descripcion;
+const formatter=new Intl.NumberFormat('es-ES',{style:'currency',currency:producto.producto.moneda});
+document.getElementById('shareProductPrice').textContent=formatter.format(producto.producto.precio);
+sharePanel.scrollIntoView({behavior:'smooth'});}
+function updateStatistics(){
+document.getElementById('totalProducts').textContent=productos.length;
+const totalValue=productos.reduce((sum,producto)=>{
+return sum+(producto.producto.precio*producto.producto.cantidad);},0);
+const defaultCurrency=productos[0]?.producto.moneda||'CUP';
+const formatter=new Intl.NumberFormat('es-ES',{style:'currency',currency:defaultCurrency});
+document.getElementById('totalInventory').textContent=formatter.format(totalValue);
+const withWarranty=productos.filter(p=>p.producto.incluyeGarantia).length;
+document.getElementById('warrantyProducts').textContent=withWarranty;}
+function setupDashboardEvents(){
+document.getElementById('searchProducts').addEventListener('input',function(){
+currentPage=1;
+updateProductsList(this.value,document.getElementById('filterStatus').value);});
+document.getElementById('filterStatus').addEventListener('change',function(){
+currentPage=1;
+updateProductsList(document.getElementById('searchProducts').value,this.value);});
+document.getElementById('prevPage').addEventListener('click',function(){
+if(currentPage>1){
+currentPage--;
+updateProductsList(
+document.getElementById('searchProducts').value,
+document.getElementById('filterStatus').value);}});
+document.getElementById('nextPage').addEventListener('click',function(){
+const totalPages=Math.ceil(
+getFilteredProducts(
+document.getElementById('searchProducts').value,
+document.getElementById('filterStatus').value
+).length/ITEMS_PER_PAGE);
+if(currentPage<totalPages){
+currentPage++;
+updateProductsList(
+document.getElementById('searchProducts').value,
+document.getElementById('filterStatus').value);}});
+document.getElementById('deleteAllBtn').addEventListener('click',deleteAllProducts);}
+function getFilteredProducts(filter='',statusFilter='all'){
+let filteredProducts=[...productos];
+if(filter){
+const searchTerm=filter.toLowerCase();
+filteredProducts=filteredProducts.filter(p=>
+p.producto.nombre.toLowerCase().includes(searchTerm)||
+p.cliente.nombre.toLowerCase().includes(searchTerm)||
+p.producto.descripcion.toLowerCase().includes(searchTerm));}
+if(statusFilter!=='all'){
+filteredProducts=filteredProducts.filter(p=>
+p.producto.estado===statusFilter);}
+return filteredProducts;}
+function deleteAllProducts(){
+if(confirm('¿Estás seguro de que deseas eliminar todos los productos registrados? Esta acción no se puede deshacer.')){
+productos=[];
+localStorage.removeItem('productos');
+updateDashboard();
+showNotification('Todos los productos han sido eliminados','success');}}
+function capitalizeFirstLetter(string){
+return string.charAt(0).toUpperCase()+string.slice(1);}
+function showNotification(message,type='info'){
+const notification=document.createElement('div');
+notification.className=`notification ${type}`;
+notification.textContent=message;
+document.body.appendChild(notification);
+setTimeout(()=>{
+notification.classList.add('fade-out');
+setTimeout(()=>{
+notification.remove();},300);},3000);}
+window.copyToClipboard=copyToClipboard;
+window.prepareShareFromList=prepareShareFromList;
+window.closeBonusModal=closeBonusModal;
+window.validateActivationCode=validateActivationCode;
+window.deleteAllProducts=deleteAllProducts;
+</script>
 </body>
 </html>
